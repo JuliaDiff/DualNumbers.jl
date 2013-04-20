@@ -2,7 +2,7 @@
 
 using DualNumbers
 
-x = dual(2., 1.)
+x = dual(2, 1)
 f(x) = x^3
 y = f(x)
 
