@@ -6,7 +6,7 @@ Dual(x::Real, y::Real) = Dual(promote(x,y)...)
 Dual(x::Real) = Dual(x, zero(x))
 
 typealias Dual128 Dual{Float64}
-typealias Dual64  Dual{Float32}
+typealias Dual64 Dual{Float32}
 typealias DualPair Dual
 
 real(z::Dual) = z.re
@@ -63,7 +63,7 @@ function dual_show(io::IO, z::Dual, compact::Bool)
         end
         print(io, "du")
     else
-        print(io, "dual(",x,",",y,")")
+        print(io, "dual(", x, ",", y, ")")
     end
 end
 show(io::IO, z::Dual) = dual_show(io, z, false)
@@ -99,7 +99,7 @@ hash(z::Dual) =
 
 conj(z::Dual) = dual(real(z), -imag(z))
 abs(z::Dual)  = hypot(real(z), imag(z))
-abs2(z::Dual) = real(z)*real(z) + imag(z)*imag(z)
+abs2(z::Dual) = real(z)*real(z)+imag(z)*imag(z)
 inv(z::Dual)  = conj(z)/(real(z)*real(z))
 
 +(z::Dual, w::Dual) = dual(real(z)+real(w), imag(z)+imag(w))
