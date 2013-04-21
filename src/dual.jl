@@ -114,7 +114,7 @@ inv(z::Dual)  = conj(z)/(real(z)*real(z))
 /(z::Real, w::Dual) = z*inv(w)
 /(z::Dual, x::Real) = dual(real(z)/x, imag(z)/x)
 /(z::Dual, w::Dual) =
-  dual(real(z)/real(w), (imag(z)*real(w)-real(z)*imag(w))/(real(z)*real(w)))
+  dual(real(z)/real(w), (imag(z)*real(w)-real(z)*imag(w))/(real(w)*real(w)))
 
 sqrt(z::Dual) = dual(sqrt(real(z)), imag(z)/(2*sqrt(real(z))))
 cbrt(z::Dual) = dual(cbrt(real(z)), imag(z)/(3*square(cbrt(real(z)))))
