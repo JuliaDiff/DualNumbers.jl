@@ -1,11 +1,12 @@
-## Calculation of f(2) and f'(2) of function f:R->R given by f(x)=x^3
-
 using DualNumbers
+using Base.Test
 
 x = dual(2, 1)
-f(x) = x^3
-y = f(x)
+y = x^3
 
-println("f(x) = x^3")
-println("f(2) = ", real(y))
-println("f'(2) = ", imag(y))
+@test_approx_eq real(y) 2.0^3
+@test_approx_eq imag(y) 3.0*2^2
+
+y = sin(x)+exp(x)
+@test_approx_eq real(y) sin(2)+exp(2)
+@test_approx_eq imag(y) cos(2)+exp(2)

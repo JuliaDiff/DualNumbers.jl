@@ -1,6 +1,8 @@
 module DualNumbers
   importall Base
 
+  import Calculus
+
   include("dual.jl")
 
   export
