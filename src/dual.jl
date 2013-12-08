@@ -128,23 +128,11 @@ function ^{T<:Dual}(z::T, w::T)
   dual(re, du)
 end
 
-exp(z::Dual) = dual(exp(real(z)), exp(real(z))*imag(z))
-log(z::Dual) = dual(log(real(z)), imag(z)/real(z))
-log2(z::Dual) = log(z)/oftype(real(z), 0.6931471805599453)
-log10(z::Dual) = log(z)/oftype(real(z), 2.302585092994046)
+for (funsym, exp) in Calculus.derivative_rules
+    @eval function $(funsym)(z::Dual)
+        xp = imag(z)
+        x = real(z)
+        Dual($(funsym)(x),$exp)
+    end
+end
 
-sin(z::Dual) = dual(sin(real(z)), cos(real(z))*imag(z))
-cos(z::Dual) = dual(cos(real(z)), -sin(real(z))*imag(z))
-tan(z::Dual) = dual(tan(real(z)), square(sec(real(z)))*imag(z))
-
-asin(z::Dual) = dual(asin(real(z)), imag(z)/sqrt(1-square(real(z))))
-acos(z::Dual) = dual(acos(real(z)), -imag(z)/sqrt(1-square(real(z))))
-atan(z::Dual) = dual(atan(real(z)), imag(z)/(1+square(real(z))))
-
-sinh(z::Dual) = dual(sinh(real(z)), cosh(real(z))*imag(z))
-cosh(z::Dual) = dual(cosh(real(z)), sinh(real(z))*imag(z))
-tanh(z::Dual) = dual(tanh(real(z)), 1-square(tanh(real(z)))*imag(z))
-
-asinh(z::Dual) = dual(asinh(real(z)), imag(z)/sqrt(real(z)*real(z)+1))
-acosh(z::Dual) = dual(acosh(real(z)), imag(z)/sqrt(real(z)*real(z)-1))
-atanh(z::Dual) = dual(atanh(real(z)), imag(z)/(1-real(z)*real(z)))
