@@ -22,7 +22,7 @@ forward mode of automatic differentiation.
 
 All the typical mathematical operations are supported. These include
 * `real`,
-* `imag`,
+* `epsilon`,
 * `real_valued`,
 * `integer_valued`,
 * `isfinite`,
@@ -97,9 +97,9 @@ Perform automatic differentiation by passing the dual number `x` as argument to
 
     y = f(x)
 
-Use the functions `real()` and `imag()` to get the real and imaginary (dual) 
+Use the functions `real()` and `epsilon()` to get the real and imaginary (dual) 
 parts of `x`, respectively:
 
     println("f(x) = x^3")
     println("f(2) = ", real(y))
-    println("f'(2) = ", imag(y))
+    println("f'(2) = ", epsilon(y))
