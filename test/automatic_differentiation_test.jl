@@ -10,3 +10,17 @@ y = x^3
 y = sin(x)+exp(x)
 @test_approx_eq real(y) sin(2)+exp(2)
 @test_approx_eq epsilon(y) cos(2)+exp(2)
+
+@test x > 1
+y = abs(-x)
+@test_approx_eq real(y) 2.0
+@test_approx_eq epsilon(y) 1.0
+
+Q = [1.0 0.1; 0.1 1.0]
+x = dual([1.0,2.0])
+x[1] = dual(1.0,1.0)
+y = (1/2)*dot(x,Q*x)
+@test_approx_eq real(y) 2.7
+@test_approx_eq epsilon(y) 1.2
+
+
