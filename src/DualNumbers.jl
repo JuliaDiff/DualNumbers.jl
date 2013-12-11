@@ -14,5 +14,6 @@ module DualNumbers
     dual128,
     dual64,
     isdual,
-    dual_show
+    dual_show,
+    epsilon
 end

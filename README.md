@@ -18,54 +18,18 @@ imaginary part represents the fermionic direction), in screw theory, in motor
 and spatial vector algebra, and in computer science due to its relation with the 
 forward mode of automatic differentiation.
 
-## List of functions for numbers of `Dual` types
+## Supported functions
 
-All the typical mathematical operations are supported. These include
-* `real`,
-* `epsilon`,
-* `real_valued`,
-* `integer_valued`,
-* `isfinite`,
-* `reim`,
-* `show`,
-* `showcompact`,
-* `read`,
-* `write`,
-* `==`,
-* `isequal`,
-* `hash`,
-* `conj`,
-* `abs`,
-* `abs2`,
-* `inv`,
-* `+`,
-* `-`,
-* `*`,
-* `/`,
-* `sqrt`,
-* `cbrt`,
-* `^`,
-* `exp`,
-* `log`,
-* `log2`,
-* `log10`,
-* `sin`,
-* `cos`,
-* `tan`,
-* `asin`,
-* `acos`,
-* `atan`,
-* `sinh`,
-* `cosh`,
-* `tanh`,
-* `asinh`,
-* `acosh`,
-* `atanh`.
+We aim for complete support for `Dual` types for numerical functions within Julia's 
+`Base`. Currently, basic mathematical operations and trigonometric functions are
+supported.
+
 
 The following functions are specific to dual numbers:
 * `dual`,
 * `dual128`,
 * `dual64`,
+* `epsilon`,
 * `isdual`,
 * `dual_show`.
 

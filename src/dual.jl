@@ -30,6 +30,8 @@ promote_rule{T<:Real, S<:Real}(::Type{Dual{T}}, ::Type{Dual{S}}) =
 dual(x, y) = Dual(x, y)
 dual(x) = Dual(x)
 
+@vectorize_1arg Real dual
+
 dual128(x::Float64, y::Float64) = Dual{Float64}(x, y)
 dual128(x::Real, y::Real) = dual128(float64(x), float64(y))
 dual128(z) = dual128(real(z), epsilon(z))
@@ -94,13 +96,16 @@ isequal(z::Dual, w::Dual) =
 isequal(z::Dual, x::Real) = real_valued(z) && isequal(real(z), x)
 isequal(x::Real, z::Dual) = real_valued(z) && isequal(real(z), x)
 
+isless(z::Dual,w::Dual) = real(z) < real(w)
+isless(z::Number,w::Dual) = z < real(w)
+isless(z::Dual,w::Number) = real(z) < w
+
 hash(z::Dual) =
   (x = hash(real(z)); real_valued(z) ? x : bitmix(x,hash(epsilon(z))))
 
-conj(z::Dual) = dual(real(z), -epsilon(z))
-abs(z::Dual)  = hypot(real(z), epsilon(z))
-abs2(z::Dual) = real(z)*real(z)+epsilon(z)*epsilon(z)
-inv(z::Dual)  = conj(z)/(real(z)*real(z))
+# we don't support Dual{Complex}, so conj is a noop
+conj(z::Dual) = z
+abs(z::Dual)  = (real(z) >= 0) ? z : -z
 
 +(z::Dual, w::Dual) = dual(real(z)+real(w), epsilon(z)+epsilon(w))
 
