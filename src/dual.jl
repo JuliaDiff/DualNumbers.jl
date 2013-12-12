@@ -12,6 +12,13 @@ typealias DualPair Dual
 real(z::Dual) = z.re
 epsilon(z::Dual) = z.du
 
+eps(z::Dual) = eps(real(z))
+eps{T}(::Type{Dual{T}}) = eps(T)
+one(z::Dual) = dual(one(real(z)))
+one{T}(::Type{Dual{T}}) = one(T)
+nan{T}(::Type{Dual{T}}) = nan(T)
+isnan(z::Dual) = isnan(real(z))
+
 convert{T<:Real}(::Type{Dual{T}}, x::Real) =
   Dual{T}(convert(T, x), convert(T, 0))
 convert{T<:Real}(::Type{Dual{T}}, z::Dual{T}) = z
@@ -45,7 +52,7 @@ isdual(x::Number) = false
 real_valued{T<:Real}(z::Dual{T}) = epsilon(z) == 0
 integer_valued(z::Dual) = real_valued(z) && integer_valued(real(z))
 
-isfinite(z::Dual) = isfinite(real(z)) && isfinite(epsilon(z))
+isfinite(z::Dual) = isfinite(real(z))
 reim(z::Dual) = (real(z), epsilon(z))
 
 function dual_show(io::IO, z::Dual, compact::Bool)
