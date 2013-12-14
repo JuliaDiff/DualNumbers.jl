@@ -133,9 +133,6 @@ abs(z::Dual)  = (real(z) >= 0) ? z : -z
 /(z::Dual, w::Dual) =
   dual(real(z)/real(w), (epsilon(z)*real(w)-real(z)*epsilon(w))/(real(w)*real(w)))
 
-sqrt(z::Dual) = dual(sqrt(real(z)), epsilon(z)/(2*sqrt(real(z))))
-cbrt(z::Dual) = dual(cbrt(real(z)), epsilon(z)/(3*square(cbrt(real(z)))))
-
 function ^(z::Dual, w::Dual)
   re = real(z)^real(w)
   
