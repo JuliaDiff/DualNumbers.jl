@@ -28,11 +28,12 @@ convert{T<:Real}(::Type{Dual{T}}, z::Dual) =
 convert{T<:Real}(::Type{T}, z::Dual) =
   (epsilon(z)==0 ? convert(T, real(z)) : throw(InexactError()))
 
+promote_rule{T<:Real, S<:Real}(::Type{Dual{T}}, ::Type{Dual{S}}) =
+    Dual{promote_type(T, S)}
+# these promotion rules shouldn't be used for scalar operations -- they're slow
 promote_rule{T<:Real}(::Type{Dual{T}}, ::Type{T}) = Dual{T}
 promote_rule{T<:Real, S<:Real}(::Type{Dual{T}}, ::Type{S}) =
   Dual{promote_type(T, S)}
-promote_rule{T<:Real, S<:Real}(::Type{Dual{T}}, ::Type{Dual{S}}) =
-    Dual{promote_type(T, S)}
 
 dual(x, y) = Dual(x, y)
 dual(x) = Dual(x)
@@ -115,15 +116,19 @@ conj(z::Dual) = z
 abs(z::Dual)  = (real(z) >= 0) ? z : -z
 
 +(z::Dual, w::Dual) = dual(real(z)+real(w), epsilon(z)+epsilon(w))
++(z::Number, w::Dual) = dual(z+real(w), epsilon(w))
++(z::Dual, w::Number) = dual(real(z)+w, epsilon(z))
 
 -(z::Dual) = dual(-real(z), -epsilon(z))
 -(z::Dual, w::Dual) = dual(real(z)-real(w), epsilon(z)-epsilon(w))
+-(z::Number, w::Dual) = dual(z-real(w), -epsilon(w))
+-(z::Dual, w::Number) = dual(real(z)-w, epsilon(z))
 
 *(z::Dual, w::Dual) = dual(real(z)*real(w), epsilon(z)*real(w)+real(z)*epsilon(w))
 *(x::Real, z::Dual) = dual(x*real(z), x*epsilon(z))
 *(z::Dual, x::Real) = dual(x*real(z), x*epsilon(z))
 
-/(z::Real, w::Dual) = z*inv(w)
+/(z::Real, w::Dual) = dual(z/real(w), -z*epsilon(w)/real(w)^2)
 /(z::Dual, x::Real) = dual(real(z)/x, epsilon(z)/x)
 /(z::Dual, w::Dual) =
   dual(real(z)/real(w), (epsilon(z)*real(w)-real(z)*epsilon(w))/(real(w)*real(w)))
@@ -131,7 +136,7 @@ abs(z::Dual)  = (real(z) >= 0) ? z : -z
 sqrt(z::Dual) = dual(sqrt(real(z)), epsilon(z)/(2*sqrt(real(z))))
 cbrt(z::Dual) = dual(cbrt(real(z)), epsilon(z)/(3*square(cbrt(real(z)))))
 
-function ^{T<:Dual}(z::T, w::T)
+function ^(z::Dual, w::Dual)
   re = real(z)^real(w)
   
   du =
@@ -139,6 +144,12 @@ function ^{T<:Dual}(z::T, w::T)
     
   dual(re, du)
 end
+
+# these two definitions are needed to fix ambiguity warnings
+^(z::Dual, n::Integer) = dual(real(z)^n, epsilon(z)*n*real(z)^(n-1))
+^(z::Dual, n::Rational) = dual(real(z)^n, epsilon(z)*n*real(z)^(n-1))
+
+^(z::Dual, n::Real) = dual(real(z)^n, epsilon(z)*n*real(z)^(n-1))
 
 for (funsym, exp) in Calculus.derivative_rules
     @eval function $(funsym)(z::Dual)
