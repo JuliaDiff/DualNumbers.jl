@@ -31,7 +31,18 @@ The following functions are specific to dual numbers:
 * `dual64`,
 * `epsilon`,
 * `isdual`,
-* `dual_show`.
+* `dual_show`,
+* `conjdual`,
+* `absdual`,
+* `abs2dual`.
+
+In some cases the mathematical definition of functions of ``Dual`` numbers
+is in conflict with their use as a drop-in replacement for calculating
+numerical derivatives, for example, ``conj``, ``abs`` and ``abs2``. In these
+cases, we choose to follow the rule ``f(x::Dual) = Dual(f(real(x)),epsilon(x)*f'(real(x)))``,
+where ``f'`` is the derivative of ``f``. The mathematical definitions are
+available using the functions with the suffix ``dual``.
+
 
 ### A walk-through example
 

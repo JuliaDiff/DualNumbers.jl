@@ -15,7 +15,7 @@ epsilon(z::Dual) = z.du
 eps(z::Dual) = eps(real(z))
 eps{T}(::Type{Dual{T}}) = eps(T)
 one(z::Dual) = dual(one(real(z)))
-one{T}(::Type{Dual{T}}) = one(T)
+one{T}(::Type{Dual{T}}) = dual(one(T))
 nan{T}(::Type{Dual{T}}) = nan(T)
 isnan(z::Dual) = isnan(real(z))
 
@@ -114,6 +114,12 @@ hash(z::Dual) =
 # we don't support Dual{Complex}, so conj is a noop
 conj(z::Dual) = z
 abs(z::Dual)  = (real(z) >= 0) ? z : -z
+abs2(z::Dual) = z*z
+
+# algebraic definitions
+conjdual(z::Dual) = Dual(real(z),-epsilon(z))
+absdual(z::Dual) = abs(real(z))
+abs2dual(z::Dual) = abs2(real(z))
 
 +(z::Dual, w::Dual) = dual(real(z)+real(w), epsilon(z)+epsilon(w))
 +(z::Number, w::Dual) = dual(z+real(w), epsilon(w))
