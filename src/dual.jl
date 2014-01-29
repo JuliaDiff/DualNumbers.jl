@@ -130,6 +130,10 @@ abs2dual(z::Dual) = abs2(real(z))
 -(z::Number, w::Dual) = dual(z-real(w), -epsilon(w))
 -(z::Dual, w::Number) = dual(real(z)-w, epsilon(z))
 
+# avoid ambiguous definition with Bool*Number
+*(x::Bool, z::Dual) = ifelse(x, z, ifelse(signbit(real(z))==0, zero(z), -zero(z)))
+*(x::Dual, z::Bool) = z*x
+
 *(z::Dual, w::Dual) = dual(real(z)*real(w), epsilon(z)*real(w)+real(z)*epsilon(w))
 *(x::Real, z::Dual) = dual(x*real(z), x*epsilon(z))
 *(z::Dual, x::Real) = dual(x*real(z), x*epsilon(z))
