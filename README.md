@@ -78,3 +78,5 @@ parts of `x`, respectively:
     println("f(x) = x^3")
     println("f(2) = ", real(y))
     println("f'(2) = ", epsilon(y))
+
+[![Build Status](https://travis-ci.org/scidom/DualNumbers.jl.png)](https://travis-ci.org/scidom/DualNumbers.jl)
