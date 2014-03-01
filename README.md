@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/scidom/DualNumbers.jl.png)](https://travis-ci.org/scidom/DualNumbers.jl)
+
 ### Scope of DualNumbers.jl
 
 The `DualNumbers` package defines the `Dual` type to represent dual numbers and 
@@ -17,6 +19,11 @@ physics (the real part of a dual represents the bosonic direction, while the
 imaginary part represents the fermionic direction), in screw theory, in motor 
 and spatial vector algebra, and in computer science due to its relation with the 
 forward mode of automatic differentiation.
+
+The `ForwardDiff` package implements forward mode automatic differentiation in Julia using several approaches. One
+of these approaches employs dual numbers. For this reason, the `ForwardDiff` package relies on `DualNumbers`. The
+user is referred to `ForwardDiff` for some examples on how to perform forward mode automatic differentiation using
+dual numbers in Julia.
 
 ## Supported functions
 
@@ -78,5 +85,3 @@ parts of `x`, respectively:
     println("f(x) = x^3")
     println("f(2) = ", real(y))
     println("f'(2) = ", epsilon(y))
-
-[![Build Status](https://travis-ci.org/scidom/DualNumbers.jl.png)](https://travis-ci.org/scidom/DualNumbers.jl)
