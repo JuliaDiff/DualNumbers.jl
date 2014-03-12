@@ -16,6 +16,7 @@ eps(z::Dual) = eps(real(z))
 eps{T}(::Type{Dual{T}}) = eps(T)
 one(z::Dual) = dual(one(real(z)))
 one{T}(::Type{Dual{T}}) = dual(one(T))
+inf{T}(::Type{Dual{T}}) = dual(inf(T))
 nan{T}(::Type{Dual{T}}) = nan(T)
 isnan(z::Dual) = isnan(real(z))
 
