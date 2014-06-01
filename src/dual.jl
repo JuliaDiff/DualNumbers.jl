@@ -96,7 +96,7 @@ end
 convert(::Type{Dual}, z::Dual) = z
 convert(::Type{Dual}, x::Real) = dual(x)
 
-==(z::Dual, w::Dual) = real(z) == real(w) && epsilon(z) == epsilon(w)
+==(z::Dual, w::Dual) = real(z) == real(w)
 # ==(z::Dual, x::Real) = real_valued(z) && real(z) == x
 # ==(x::Real, z::Dual) = real_valued(z) && real(z) == x
 

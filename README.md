@@ -20,7 +20,7 @@ imaginary part represents the fermionic direction), in screw theory, in motor
 and spatial vector algebra, and in computer science due to its relation with the 
 forward mode of automatic differentiation.
 
-The `ForwardDiff` package implements forward mode automatic differentiation in Julia using several approaches. One
+The [ForwardDiff](https://github.com/scidom/ForwardDiff.jl) package implements forward mode automatic differentiation in Julia using several approaches. One
 of these approaches employs dual numbers. For this reason, the `ForwardDiff` package relies on `DualNumbers`. The
 user is referred to `ForwardDiff` for some examples on how to perform forward mode automatic differentiation using
 dual numbers in Julia.
@@ -49,6 +49,10 @@ numerical derivatives, for example, ``conj``, ``abs`` and ``abs2``. In these
 cases, we choose to follow the rule ``f(x::Dual) = Dual(f(real(x)),epsilon(x)*f'(real(x)))``,
 where ``f'`` is the derivative of ``f``. The mathematical definitions are
 available using the functions with the suffix ``dual``.
+Similarly, comparison operators ``<``, ``>``, and ``==`` are overloaded to compare only real
+components.
+
+
 
 
 ### A walk-through example
