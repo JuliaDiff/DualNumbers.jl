@@ -40,6 +40,8 @@ dual(x, y) = Dual(x, y)
 dual(x) = Dual(x)
 
 @vectorize_1arg Real dual
+@vectorize_2arg Real dual
+@vectorize_1arg Dual epsilon
 
 dual128(x::Float64, y::Float64) = Dual{Float64}(x, y)
 dual128(x::Real, y::Real) = dual128(float64(x), float64(y))
