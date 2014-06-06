@@ -169,3 +169,74 @@ for (funsym, exp) in Calculus.derivative_rules
     end
 end
 
+
+# Linear algebra on dual matrices
+
+# Solve the matrix system
+#
+#   U'*M + M'*U = B
+#
+# for M, where B is symmetric and U is upper triangular.  This looks a bit like
+# the *-Sylvester equation, but with a lot more structure.  The solution
+# algorithm is basically a forward substitution method.
+function tri_ss_solve!(M, U, B)
+    n = size(U,1)
+    # Compute M row by row.  The expression for the i'th row is broken into a
+    # part involving matrix products of the previously computed rows of M with
+    # parts of U, and a part involving the current row.
+    for i = 1:n
+        a = B[i,i:end]
+        if i > 1
+            # Uses only parts of M computed in previous iterations.
+            a -= M[1:i-1,i]'*U[1:i-1,i:end] + U[1:i-1,i]'*M[1:i-1,i:end]
+        end
+        M[i,i] = a[1]/(2*U[i,i])
+        M[i,i+1:end] = (a[1,2:end] - M[i,i]*U[i,i+1:end]) / U[i,i]
+    end
+    return M
+end
+
+# Version of tri_ss_solve!() optimized for BLAS types
+function tri_ss_solve!{T<:Base.LinAlg.BlasFloat}(M::AbstractMatrix{T},
+                                    U::AbstractMatrix{T}, B::AbstractMatrix{T})
+    n = size(U,1)
+    a = zeros(n)
+    mi = zeros(n)
+    ui = zeros(n)
+    unit = one(T)
+    for i = 1:n
+        m = n-i+1
+        # a[1:m] = B[i,i:n]
+        for k=1:m
+            a[k] = B[i,i+k-1]
+        end
+        if i > 1
+            # a -= M[1:i-1,i]'*U[1:i-1,i:end] + U[1:i-1,i]'*M[1:i-1,i:end]
+            for k=1:i-1
+                mi[k] = M[k,i]
+                ui[k] = U[k,i]
+            end
+            # Call BLAS directly to avoid temporary array copies.
+            BLAS.gemv!('T', -unit, sub(U,1:i-1,i:n), mi, unit, a)
+            BLAS.gemv!('T', -unit, sub(M,1:i-1,i:n), ui, unit, a)
+        end
+        M[i,i] = a[1]/(2*U[i,i])
+        # M[i,i+1:end] = (a[1,2:end] - M[i,i]*U[i,i+1:end]) / U[i,i]
+        for k=2:m
+            M[i,i+k-1] = (a[k] - M[i,i]*U[i,i+k-1]) / U[i,i]
+        end
+    end
+    return M
+end
+
+# Cholesky factorization of arrays of dual numbers
+#
+# The returned matrix is upper triangular
+function chol{T}(A :: AbstractMatrix{Dual{T}})
+    U = chol(real(A))
+    B = epsilon(A)
+    M = zeros(size(A))
+    tri_ss_solve!(M, U, B)
+    return dual(U,M)
+end
+
