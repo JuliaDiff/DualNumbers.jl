@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/scidom/DualNumbers.jl.png)](https://travis-ci.org/scidom/DualNumbers.jl)
+[![Build Status](https://travis-ci.org/JuliaDiff/DualNumbers.jl.png)](https://travis-ci.org/JuliaDiff/DualNumbers.jl)
 
 ### Scope of DualNumbers.jl
 
