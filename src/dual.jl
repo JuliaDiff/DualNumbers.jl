@@ -146,13 +146,15 @@ abs2dual(z::Dual) = abs2(real(z))
 /(z::Dual, w::Dual) =
   dual(real(z)/real(w), (epsilon(z)*real(w)-real(z)*epsilon(w))/(real(w)*real(w)))
 
-function ^(z::Dual, w::Dual)
-  re = real(z)^real(w)
-  
-  du =
-    epsilon(z)*real(w)*(real(z)^(real(w)-1))+epsilon(w)*(real(z)^real(w))*log(real(z))
-    
-  dual(re, du)
+for f in [:^, :(NaNMath.pow)]
+    @eval function ($f)(z::Dual, w::Dual)
+        re = $f(real(z),real(w))
+
+        du =
+        epsilon(z)*real(w)*(($f)(real(z),real(w)-1))+epsilon(w)*($f)(real(z),real(w))*log(real(z))
+
+        dual(re, du)
+    end
 end
 
 # these two definitions are needed to fix ambiguity warnings
@@ -160,12 +162,23 @@ end
 ^(z::Dual, n::Rational) = dual(real(z)^n, epsilon(z)*n*real(z)^(n-1))
 
 ^(z::Dual, n::Real) = dual(real(z)^n, epsilon(z)*n*real(z)^(n-1))
+NaNMath.pow(z::Dual, n::Real) = dual(NaNMath.pow(real(z),n), epsilon(z)*n*NaNMath.pow(real(z),n-1))
 
 for (funsym, exp) in Calculus.derivative_rules
     @eval function $(funsym)(z::Dual)
         xp = epsilon(z)
         x = real(z)
         Dual($(funsym)(x),$exp)
+    end
+    # extend corresponding NaNMath methods
+    if funsym in (:sin, :cos, :tan, :asin, :acos, :acosh, :atanh, :log, :log2, :log10,
+          :lgamma, :log1p)
+        funsym = Expr(:.,:NaNMath,Base.Meta.quot(funsym))
+        @eval function $(funsym)(z::Dual)
+            xp = epsilon(z)
+            x = real(z)
+            Dual($(funsym)(x),$exp)
+        end
     end
 end
 

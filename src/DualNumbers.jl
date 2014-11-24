@@ -1,6 +1,7 @@
 module DualNumbers
   importall Base
 
+  import NaNMath
   import Calculus
 
   include("dual.jl")
