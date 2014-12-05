@@ -8,15 +8,15 @@ are defined to allow performing operations on combinations of dual numbers with
 predefined Julia numeric types.
 
 Dual numbers extend the real numbers, similar to complex numbers. They adjoin a 
-new element `du` such that `du*du=0`, in a similar way that complex numbers 
+new element `ϵ` such that `ϵ*ϵ=0`, in a similar way that complex numbers 
 adjoin the imaginary unit `i` with the property `i*i=-1`. So the typical 
-representation of a dual number takes the form `x+y*du`, where `x` and `y` are 
+representation of a dual number takes the form `x+y*ϵ`, where `x` and `y` are 
 real numbers.
 
 Apart from their mathematical role in algebraic and differential geometry (they 
 are mainly interpreted as angles between lines), they also find applications in 
 physics (the real part of a dual represents the bosonic direction, while the 
-imaginary part represents the fermionic direction), in screw theory, in motor 
+epsilon part represents the fermionic direction), in screw theory, in motor 
 and spatial vector algebra, and in computer science due to its relation with the 
 forward mode of automatic differentiation.
 
