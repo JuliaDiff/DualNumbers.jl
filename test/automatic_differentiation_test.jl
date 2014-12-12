@@ -29,5 +29,12 @@ y = (1/2)*dot(x,Q*x)
 @test_approx_eq real(y) 2.7
 @test_approx_eq epsilon(y) 1.2
 
+function squareroot(x)
+    it = x
+    while abs(it*it - x) > 1e-13
+        it = it - (it*it-x)/(2it)
+    end
+    return it
+end
 
-
+@test_approx_eq epsilon(squareroot(Dual(10000.0,1.0))) 0.005
