@@ -163,6 +163,7 @@ end
 
 ^(z::Dual, n::Real) = dual(real(z)^n, epsilon(z)*n*real(z)^(n-1))
 NaNMath.pow(z::Dual, n::Real) = dual(NaNMath.pow(real(z),n), epsilon(z)*n*NaNMath.pow(real(z),n-1))
+NaNMath.pow(z::Real, w::Dual) = dual(NaNMath.pow(z,real(w)), epsilon(w)*NaNMath.pow(z,real(w))*log(z))
 
 for (funsym, exp) in Calculus.derivative_rules
     @eval function $(funsym)(z::Dual)
