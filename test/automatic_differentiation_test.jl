@@ -40,3 +40,4 @@ end
 @test_approx_eq epsilon(squareroot(Dual(10000.0,1.0))) 0.005
 
 @test_approx_eq epsilon(exp(1)^Dual(1.0,1.0)) exp(1)
+@test_approx_eq epsilon(NaNMath.pow(exp(1),Dual(1.0,1.0))) exp(1)
