@@ -165,6 +165,17 @@ end
 NaNMath.pow(z::Dual, n::Real) = dual(NaNMath.pow(real(z),n), epsilon(z)*n*NaNMath.pow(real(z),n-1))
 NaNMath.pow(z::Real, w::Dual) = dual(NaNMath.pow(z,real(w)), epsilon(w)*NaNMath.pow(z,real(w))*log(z))
 
+# force use of NaNMath functions in derivative calculations
+function to_nanmath(x::Expr)
+    if x.head == :call
+        funsym = Expr(:.,:NaNMath,Base.Meta.quot(x.args[1]))
+        return Expr(:call,funsym,[to_nanmath(z) for z in x.args[2:end]]...)
+    else
+        return Expr(:call,[to_nanmath(z) for z in x.args]...)
+    end
+end
+to_nanmath(x) = x
+
 for (funsym, exp) in Calculus.derivative_rules
     @eval function $(funsym)(z::Dual)
         xp = epsilon(z)
@@ -178,7 +189,7 @@ for (funsym, exp) in Calculus.derivative_rules
         @eval function $(funsym)(z::Dual)
             xp = epsilon(z)
             x = real(z)
-            Dual($(funsym)(x),$exp)
+            Dual($(funsym)(x),$(to_nanmath(exp)))
         end
     end
 end
