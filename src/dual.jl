@@ -177,6 +177,7 @@ end
 to_nanmath(x) = x
 
 for (funsym, exp) in Calculus.derivative_rules
+    funsym == :exp && continue
     @eval function $(funsym)(z::Dual)
         xp = epsilon(z)
         x = real(z)
@@ -194,3 +195,8 @@ for (funsym, exp) in Calculus.derivative_rules
     end
 end
 
+# only need to compute exp once
+function exp(z::Dual)
+    ereal = exp(real(z))
+    return Dual(ereal, epsilon(z)*ereal)
+end
