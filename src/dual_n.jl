@@ -49,13 +49,6 @@ real_valued{T<:Real}(z::Dual4{T}) = epsilon1(z) == 0 && epsilon2(z) == 0 && epsi
 
 isfinite(z::Dual4) = isfinite(real(z))
 
-function dual_show(io::IO, z::Dual4, compact::Bool)
-    print(io, "dual4(", real(z), ",", epsilon1(z), ",", epsilon2(z), ",", epsilon3(z), ",", epsilon4(z), ")")
-end
-show(io::IO, z::Dual4) = dual_show(io, z, false)
-showcompact(io::IO, z::Dual4) = dual_show(io, z, true)
-
-
 ## Generic functions of dual numbers ##
 
 convert(::Type{Dual4}, z::Dual) = z
