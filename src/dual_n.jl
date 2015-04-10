@@ -1,6 +1,7 @@
 # Dual number with multiple epsilon components.
 # Fast inlined storage (will switch to tuples when they're fast)
-# This is useful because we can avoid recomputing expensive functions and share computations across the epsilon components
+# This is useful because we can avoid recomputing expensive functions and share computations across the epsilon components.
+# Interface will improve, so not exported yet.
 
 immutable Dual4{T<:Real} <: Number
     re::T
