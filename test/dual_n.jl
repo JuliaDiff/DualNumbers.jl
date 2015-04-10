@@ -42,6 +42,8 @@ y = x/2
 @test_approx_eq epsilon3(y) 3/2
 @test_approx_eq epsilon4(y) 2.0
 
+@test x - 2 == Dual4(0,1,2,3,4)
+
 
 @test x > 1
 y = abs(-x)

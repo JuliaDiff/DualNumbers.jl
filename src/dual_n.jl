@@ -89,7 +89,7 @@ abs2(z::Dual4) = z*z
 -(z::Dual4) = Dual4(-real(z), -epsilon1(z), -epsilon2(z), -epsilon3(z), -epsilon4(z))
 -(z::Dual4, w::Dual4) = Dual4(real(z)-real(w), epsilon1(z)-epsilon1(w), epsilon2(z)-epsilon2(w), epsilon3(z)-epsilon3(w), epsilon4(z)-epsilon4(w))
 -(z::Real, w::Dual4) = Dual4(z-real(w), -epsilon1(w), -epsilon2(w), -epsilon3(w), -epsilon4(w))
--(z::Dual4, w::Real) = Dual4(real(z)-w, epsilon1(z), epsilon2(w), epsilon3(w), epsilon4(w))
+-(z::Dual4, w::Real) = Dual4(real(z)-w, epsilon1(z), epsilon2(z), epsilon3(z), epsilon4(z))
 
 # avoid ambiguous definition with Bool*Number
 *(x::Bool, z::Dual4) = ifelse(x, z, ifelse(signbit(real(z))==0, zero(z), -zero(z)))
