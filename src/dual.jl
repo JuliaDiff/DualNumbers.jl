@@ -190,7 +190,7 @@ for (funsym, exp) in Calculus.symbolic_derivatives_1arg()
         @eval function $(funsym)(z::Dual)
             xp = epsilon(z)
             x = real(z)
-            Dual($(funsym)(x),$(to_nanmath(exp)))
+            Dual($(funsym)(x),xp*$(to_nanmath(exp)))
         end
     end
 end
