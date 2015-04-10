@@ -12,12 +12,35 @@ y = x^3
 @test_approx_eq epsilon3(y) 3*3.0*2^2
 @test_approx_eq epsilon4(y) 4*3.0*2^2
 
+y = x^3.0
+
+@test_approx_eq real(y) 2.0^3
+@test_approx_eq epsilon1(y) 3.0*2^2
+@test_approx_eq epsilon2(y) 2*3.0*2^2
+@test_approx_eq epsilon3(y) 3*3.0*2^2
+@test_approx_eq epsilon4(y) 4*3.0*2^2
+
+y = NaNMath.pow(x,3)
+
+@test_approx_eq real(y) 2.0^3
+@test_approx_eq epsilon1(y) 3.0*2^2
+@test_approx_eq epsilon2(y) 2*3.0*2^2
+@test_approx_eq epsilon3(y) 3*3.0*2^2
+@test_approx_eq epsilon4(y) 4*3.0*2^2
+
 y = sin(x)+exp(x)
 @test_approx_eq real(y) sin(2)+exp(2)
 @test_approx_eq epsilon1(y) cos(2)+exp(2)
 @test_approx_eq epsilon2(y) 2*(cos(2)+exp(2))
 @test_approx_eq epsilon3(y) 3*(cos(2)+exp(2))
 @test_approx_eq epsilon4(y) 4*(cos(2)+exp(2))
+
+y = x/2
+@test_approx_eq real(y) 1.0
+@test_approx_eq epsilon1(y) 0.5
+@test_approx_eq epsilon2(y) 1.0
+@test_approx_eq epsilon3(y) 3/2
+@test_approx_eq epsilon4(y) 2.0
 
 
 @test x > 1
@@ -55,6 +78,7 @@ sq = squareroot(Dual4(10000.0,1.0,2.0,3.0,4.0))
 @test_approx_eq epsilon2(exp(1)^Dual4(1.0,1.0,2.0,3.0,4.0)) 2exp(1)
 @test_approx_eq epsilon3(exp(1)^Dual4(1.0,1.0,2.0,3.0,4.0)) 3exp(1)
 @test_approx_eq epsilon4(exp(1)^Dual4(1.0,1.0,2.0,3.0,4.0)) 4exp(1)
+@test_approx_eq epsilon2(NaNMath.sin(Dual4(1.0,1.0,2.0,3.0,4.0))) 2cos(1)
 
 @test_approx_eq epsilon1(NaNMath.pow(exp(1),Dual4(1.0,1.0,2.0,3.0,4.0))) exp(1)
 @test_approx_eq epsilon2(NaNMath.pow(exp(1),Dual4(1.0,1.0,2.0,3.0,4.0))) 2exp(1)
