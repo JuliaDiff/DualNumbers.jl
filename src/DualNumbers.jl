@@ -21,4 +21,5 @@ module DualNumbers
     conjdual,
     absdual,
     abs2dual
+    du
 end
