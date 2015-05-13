@@ -20,6 +20,6 @@ module DualNumbers
     epsilon,
     conjdual,
     absdual,
-    abs2dual
+    abs2dual,
     du
 end
