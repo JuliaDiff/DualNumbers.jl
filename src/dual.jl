@@ -5,6 +5,8 @@ end
 Dual(x::Real, y::Real) = Dual(promote(x,y)...)
 Dual(x::Real) = Dual(x, zero(x))
 
+const du = Dual(false, true)
+
 typealias Dual128 Dual{Float64}
 typealias Dual64 Dual{Float32}
 typealias DualPair Dual
