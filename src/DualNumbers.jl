@@ -5,7 +5,7 @@ module DualNumbers
   import Calculus
 
   include("dual.jl")
-  include("dual_n.jl")
+  include("dual_4.jl")
 
   export
     Dual,
