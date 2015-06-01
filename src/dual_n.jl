@@ -26,9 +26,9 @@ eps{N,T}(::Type{DualN{N,T}}) = eps(T)
     return parse(ex)
 end
 
-zero(z::DualN) = DualN(zero(real(z)), zero_tup(typeof(epsilon(z)))
+zero(z::DualN) = DualN(zero(real(z)), zero_tup(typeof(epsilon(z))))
 zero{N,T}(::Type{DualN{N,T}}) = DualN(zero(T), zero_tup(NTuple{N,T}))
-one(z::DualN) = DualN(one(real(z)), zero_tup(typeof(epsilon(z)))
+one(z::DualN) = DualN(one(real(z)), zero_tup(typeof(epsilon(z))))
 one{N,T}(::Type{DualN{N,T}}) = DualN(one(T), zero_tup(NTuple{N,T}))
 
 inf(z::DualN) = DualN(inf(real(z)))
@@ -40,19 +40,6 @@ isdual(::DualN) = true
 isreal(z::DualN) = any(x -> x == 0, epsilon(z))
 isreal(z::DualN{0}) = true
 isfinite(z::DualN) = isfinite(real(z))
-
-# Define conversion/promotion for mixed N? Is there a 
-# type stable way to do this? Naive implementation:
-
-# append_zeros{N,T}(epsvals::NTuple{N,T}, i) = tuple(epsvals..., zeros(T, i)...)
-
-# function convert{A,B,T}(::Type{DualN{A,T}}, z::DualN{B})
-#     if A > B 
-#         return DualN{A,T}(real(z), append_zeros(epsilon(z), A))
-#     else
-#         throw(InexactError())
-#     end
-# end
 
 convert{N,T<:Real}(::Type{DualN{N,T}}, x::Real) = DualN(convert(T, x))
 convert{N,T<:Real}(::Type{DualN{N,T}}, z::DualN{N,T}) = z
