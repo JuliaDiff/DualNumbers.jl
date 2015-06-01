@@ -5,10 +5,12 @@ module DualNumbers
   import Calculus
 
   include("dual.jl")
+  include("dual_4.jl")
   include("dual_n.jl")
 
   export
     Dual,
+    DualN,
     Dual128,
     Dual64,
     DualPair,
@@ -18,6 +20,7 @@ module DualNumbers
     isdual,
     dual_show,
     epsilon,
+    neps,
     conjdual,
     absdual,
     abs2dual,
