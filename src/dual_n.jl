@@ -17,15 +17,19 @@ neps{N,T}(::Type{DualN{N,T}}) = N
 eps(z::DualN) = eps(real(z))
 eps{N,T}(::Type{DualN{N,T}}) = eps(T)
 
-# Univariate functions that map
-# onto the DualN's real component
-# and return a DualN
-for f in (:eps, :one, :zero)
-    @eval begin
-        ($f)(z::DualN) = DualN(($f)(real(z)))
-        ($f){N,T}(::Type{DualN{N,T}}) = DualN(($f)(T))
-    end
+# Type stable method for generating
+# zero-filled  NTuples of a given
+# length and type.
+@generated function zero_tup{N,T}(::Type{NTuple{N,T}})
+    z = zero(T)
+    ex = "tuple(" * repeat("zero(T),", N) * ")"
+    return parse(ex)
 end
+
+zero(z::DualN) = DualN(zero(real(z)), zero_tup(typeof(epsilon(z)))
+zero{N,T}(::Type{DualN{N,T}}) = DualN(zero(T), zero_tup(NTuple{N,T}))
+one(z::DualN) = DualN(one(real(z)), zero_tup(typeof(epsilon(z)))
+one{N,T}(::Type{DualN{N,T}}) = DualN(one(T), zero_tup(NTuple{N,T}))
 
 inf(z::DualN) = DualN(inf(real(z)))
 nan(z::DualN) = DualN(nan(real(z)))
