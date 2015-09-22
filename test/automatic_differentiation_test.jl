@@ -67,3 +67,6 @@ x = Dual(1.0,1.0)
 z(x, y) = x^2 + y
 @test z(1.0 + du, 1.0) == 2.0 + 2.0du
 @test z(1.0, 1.0 + du) == 2.0 + 1.0du
+
+@test real(mod(dual(15.23, 1), 10)) == 5.23
+@test epsilon(mod(dual(15.23, 1), 10)) == 1
