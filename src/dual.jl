@@ -73,7 +73,7 @@ function dual_show(io::IO, z::Dual, compact::Bool)
         end
         compact ? showcompact(io, y) : show(io, y)
         if !(isa(y,Integer) || isa(y,Rational) ||
-             isa(y,FloatingPoint) && isfinite(y))
+             isa(y,AbstractFloat) && isfinite(y))
             print(io, "*")
         end
         print(io, "du")
