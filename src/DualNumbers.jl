@@ -1,6 +1,9 @@
+isdefined(Base, :__precompile__) && __precompile__()
+
 module DualNumbers
   importall Base
 
+  using Compat
   import NaNMath
   import Calculus
 
