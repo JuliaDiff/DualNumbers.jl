@@ -159,6 +159,8 @@ for f in [:^, :(NaNMath.pow)]
     end
 end
 
+mod(z::Dual, n::Number) = dual(mod(real(z), n), epsilon(z))
+
 # these two definitions are needed to fix ambiguity warnings
 ^(z::Dual, n::Integer) = dual(real(z)^n, epsilon(z)*n*real(z)^(n-1))
 ^(z::Dual, n::Rational) = dual(real(z)^n, epsilon(z)*n*real(z)^(n-1))
