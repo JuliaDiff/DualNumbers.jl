@@ -70,7 +70,7 @@ function squareroot(x)
     return it
 end
 
-sq = squareroot(Dual4(10000.0,1.0,2.0,3.0,4.0)) 
+sq = squareroot(Dual4(10000.0,1.0,2.0,3.0,4.0))
 @test_approx_eq epsilon1(sq) 0.005
 @test_approx_eq epsilon2(sq) 2*0.005
 @test_approx_eq epsilon3(sq) 3*0.005

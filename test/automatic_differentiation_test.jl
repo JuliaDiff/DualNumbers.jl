@@ -54,8 +54,8 @@ x = Dual(1.0,1.0)
 @test eps(Dual{Float64}) == eps(Float64)
 @test one(x) == Dual(1.0,0.0)
 @test one(Dual{Float64}) == Dual(1.0,0.0)
-@test inf(Dual{Float64}) == convert(Float64, Inf)
-@test isnan(nan(Dual{Float64}))
+@test convert(Dual{Float64}, Inf) == convert(Float64, Inf)
+@test isnan(convert(Dual{Float64}, NaN))
 
 @test convert(Dual{Float64},Dual(1,2)) == Dual(1.0,2.0)
 @test convert(Float64, Dual(10.0,0.0)) == 10.0

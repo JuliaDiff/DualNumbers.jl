@@ -23,8 +23,8 @@ eps(z::Dual4) = eps(real(z))
 eps{T}(::Type{Dual4{T}}) = eps(T)
 one(z::Dual4) = Dual4(one(real(z)))
 one{T}(::Type{Dual4{T}}) = Dual4(one(T))
-inf{T}(::Type{Dual4{T}}) = Dual4(inf(T))
-nan{T}(::Type{Dual4{T}}) = nan(T)
+@deprecate inf{T}(::Type{Dual4{T}}) convert(Dual4{T}, Inf)
+@deprecate nan{T}(::Type{Dual4{T}}) convert(Dual4{T}, NaN)
 isnan(z::Dual4) = isnan(real(z))
 
 convert{T<:Real}(::Type{Dual4{T}}, x::Real) =
