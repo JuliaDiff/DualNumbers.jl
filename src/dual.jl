@@ -16,8 +16,8 @@ epsilon(z::Dual) = z.du
 
 eps(z::Dual) = eps(real(z))
 eps{T}(::Type{Dual{T}}) = eps(T)
-one(z::Dual) = dual(one(real(z)))
-one{T}(::Type{Dual{T}}) = dual(one(T))
+one(z::Dual) = Dual(one(real(z)))
+one{T}(::Type{Dual{T}}) = Dual(one(T))
 @deprecate inf{T}(::Type{Dual{T}}) convert(Dual{T}, Inf)
 @deprecate nan{T}(::Type{Dual{T}}) convert(Dual{T}, NaN)
 isnan(z::Dual) = isnan(real(z))
@@ -38,19 +38,14 @@ promote_rule{T<:Real}(::Type{Dual{T}}, ::Type{T}) = Dual{T}
 promote_rule{T<:Real, S<:Real}(::Type{Dual{T}}, ::Type{S}) =
   Dual{promote_type(T, S)}
 
-dual(x, y) = Dual(x, y)
-dual(x) = Dual(x)
+@deprecate dual Dual
 
-@vectorize_1arg Real dual
-@vectorize_2arg Real dual
+@vectorize_1arg Real Dual
+@vectorize_2arg Real Dual
 @vectorize_1arg Dual epsilon
 
-dual128(x::Float64, y::Float64) = Dual{Float64}(x, y)
-dual128(x::Real, y::Real) = dual128(float64(x), float64(y))
-dual128(z) = dual128(real(z), epsilon(z))
-dual64(x::Float32, y::Float32) = Dual{Float32}(x, y)
-dual64(x::Real, y::Real) = dual64(float32(x), float32(y))
-dual64(z) = dual64(real(z), epsilon(z))
+@deprecate dual128 Dual{Float64}
+@deprecate dual64 Dual{Float32}
 
 isdual(x::Dual) = true
 isdual(x::Number) = false
@@ -126,27 +121,27 @@ conjdual(z::Dual) = Dual(real(z),-epsilon(z))
 absdual(z::Dual) = abs(real(z))
 abs2dual(z::Dual) = abs2(real(z))
 
-+(z::Dual, w::Dual) = dual(real(z)+real(w), epsilon(z)+epsilon(w))
-+(z::Number, w::Dual) = dual(z+real(w), epsilon(w))
-+(z::Dual, w::Number) = dual(real(z)+w, epsilon(z))
++(z::Dual, w::Dual) = Dual(real(z)+real(w), epsilon(z)+epsilon(w))
++(z::Number, w::Dual) = Dual(z+real(w), epsilon(w))
++(z::Dual, w::Number) = Dual(real(z)+w, epsilon(z))
 
--(z::Dual) = dual(-real(z), -epsilon(z))
--(z::Dual, w::Dual) = dual(real(z)-real(w), epsilon(z)-epsilon(w))
--(z::Number, w::Dual) = dual(z-real(w), -epsilon(w))
--(z::Dual, w::Number) = dual(real(z)-w, epsilon(z))
+-(z::Dual) = Dual(-real(z), -epsilon(z))
+-(z::Dual, w::Dual) = Dual(real(z)-real(w), epsilon(z)-epsilon(w))
+-(z::Number, w::Dual) = Dual(z-real(w), -epsilon(w))
+-(z::Dual, w::Number) = Dual(real(z)-w, epsilon(z))
 
 # avoid ambiguous definition with Bool*Number
 *(x::Bool, z::Dual) = ifelse(x, z, ifelse(signbit(real(z))==0, zero(z), -zero(z)))
 *(x::Dual, z::Bool) = z*x
 
-*(z::Dual, w::Dual) = dual(real(z)*real(w), epsilon(z)*real(w)+real(z)*epsilon(w))
-*(x::Real, z::Dual) = dual(x*real(z), x*epsilon(z))
-*(z::Dual, x::Real) = dual(x*real(z), x*epsilon(z))
+*(z::Dual, w::Dual) = Dual(real(z)*real(w), epsilon(z)*real(w)+real(z)*epsilon(w))
+*(x::Real, z::Dual) = Dual(x*real(z), x*epsilon(z))
+*(z::Dual, x::Real) = Dual(x*real(z), x*epsilon(z))
 
-/(z::Real, w::Dual) = dual(z/real(w), -z*epsilon(w)/real(w)^2)
-/(z::Dual, x::Real) = dual(real(z)/x, epsilon(z)/x)
+/(z::Real, w::Dual) = Dual(z/real(w), -z*epsilon(w)/real(w)^2)
+/(z::Dual, x::Real) = Dual(real(z)/x, epsilon(z)/x)
 /(z::Dual, w::Dual) =
-  dual(real(z)/real(w), (epsilon(z)*real(w)-real(z)*epsilon(w))/(real(w)*real(w)))
+  Dual(real(z)/real(w), (epsilon(z)*real(w)-real(z)*epsilon(w))/(real(w)*real(w)))
 
 for f in [:^, :(NaNMath.pow)]
     @eval function ($f)(z::Dual, w::Dual)
@@ -155,19 +150,19 @@ for f in [:^, :(NaNMath.pow)]
         du =
         epsilon(z)*real(w)*(($f)(real(z),real(w)-1))+epsilon(w)*($f)(real(z),real(w))*log(real(z))
 
-        dual(re, du)
+        Dual(re, du)
     end
 end
 
-mod(z::Dual, n::Number) = dual(mod(real(z), n), epsilon(z))
+mod(z::Dual, n::Number) = Dual(mod(real(z), n), epsilon(z))
 
 # these two definitions are needed to fix ambiguity warnings
-^(z::Dual, n::Integer) = dual(real(z)^n, epsilon(z)*n*real(z)^(n-1))
-^(z::Dual, n::Rational) = dual(real(z)^n, epsilon(z)*n*real(z)^(n-1))
+^(z::Dual, n::Integer) = Dual(real(z)^n, epsilon(z)*n*real(z)^(n-1))
+^(z::Dual, n::Rational) = Dual(real(z)^n, epsilon(z)*n*real(z)^(n-1))
 
-^(z::Dual, n::Real) = dual(real(z)^n, epsilon(z)*n*real(z)^(n-1))
-NaNMath.pow(z::Dual, n::Real) = dual(NaNMath.pow(real(z),n), epsilon(z)*n*NaNMath.pow(real(z),n-1))
-NaNMath.pow(z::Real, w::Dual) = dual(NaNMath.pow(z,real(w)), epsilon(w)*NaNMath.pow(z,real(w))*log(z))
+^(z::Dual, n::Real) = Dual(real(z)^n, epsilon(z)*n*real(z)^(n-1))
+NaNMath.pow(z::Dual, n::Real) = Dual(NaNMath.pow(real(z),n), epsilon(z)*n*NaNMath.pow(real(z),n-1))
+NaNMath.pow(z::Real, w::Dual) = Dual(NaNMath.pow(z,real(w)), epsilon(w)*NaNMath.pow(z,real(w))*log(z))
 
 # force use of NaNMath functions in derivative calculations
 function to_nanmath(x::Expr)

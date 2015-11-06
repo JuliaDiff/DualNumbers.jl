@@ -1,7 +1,7 @@
 using DualNumbers
 using Base.Test
 
-x = dual(2, 1)
+x = Dual(2, 1)
 y = x^3
 
 @test_approx_eq real(y) 2.0^3
@@ -21,15 +21,15 @@ y = abs(-x)
 @test_approx_eq real(y) 2.0
 @test_approx_eq epsilon(y) 1.0
 
-@test isequal(1.0,dual(1.0))
+@test isequal(1.0,Dual(1.0))
 
 y = 1/x
 @test_approx_eq real(y) 1/2
 @test_approx_eq epsilon(y) -1/2^2
 
 Q = [1.0 0.1; 0.1 1.0]
-x = dual([1.0,2.0])
-x[1] = dual(1.0,1.0)
+x = Dual([1.0,2.0])
+x[1] = Dual(1.0,1.0)
 y = (1/2)*dot(x,Q*x)
 @test_approx_eq real(y) 2.7
 @test_approx_eq epsilon(y) 1.2
@@ -68,5 +68,5 @@ z(x, y) = x^2 + y
 @test z(1.0 + du, 1.0) == 2.0 + 2.0du
 @test z(1.0, 1.0 + du) == 2.0 + 1.0du
 
-@test real(mod(dual(15.23, 1), 10)) == 5.23
-@test epsilon(mod(dual(15.23, 1), 10)) == 1
+@test real(mod(Dual(15.23, 1), 10)) == 5.23
+@test epsilon(mod(Dual(15.23, 1), 10)) == 1
