@@ -1,9 +1,8 @@
-isdefined(Base, :__precompile__) && __precompile__()
+__precompile__()
 
 module DualNumbers
   importall Base
 
-  using Compat
   import NaNMath
   import Calculus
 
@@ -15,9 +14,6 @@ module DualNumbers
     Dual128,
     Dual64,
     DualPair,
-    dual,
-    dual128,
-    dual64,
     isdual,
     dual_show,
     epsilon,

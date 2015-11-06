@@ -33,9 +33,6 @@ supported.
 
 
 The following functions are specific to dual numbers:
-* `dual`,
-* `dual128`,
-* `dual64`,
 * `epsilon`,
 * `isdual`,
 * `dual_show`,
@@ -70,9 +67,9 @@ Then make the package available via
 
     using DualNumbers
 
-Use the `dual()` function to define the dual number `2+1*du`:
+Use the `Dual()` constructor to define the dual number `2+1*du`:
 
-    x = dual(2, 1)
+    x = Dual(2, 1)
 
 Define a function that will be differentiated, say
 
