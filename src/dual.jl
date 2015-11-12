@@ -204,3 +204,5 @@ function exp(z::Dual)
     ereal = exp(real(z))
     return Dual(ereal, epsilon(z)*ereal)
 end
+
+sign{T}(z::Dual{T}) = Dual(sign(real(z)), zero(T))
