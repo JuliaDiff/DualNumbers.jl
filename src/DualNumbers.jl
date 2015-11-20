@@ -1,28 +1,36 @@
-isdefined(Base, :__precompile__) && __precompile__()
+__precompile__()
 
 module DualNumbers
   importall Base
 
-  using Compat
   import NaNMath
   import Calculus
 
   include("dual.jl")
   include("dual_n.jl")
 
+  Base.@deprecate_binding du ɛ
+  @deprecate inf{T}(::Type{Dual{T}}) convert(Dual{T}, Inf)
+  @deprecate nan{T}(::Type{Dual{T}}) convert(Dual{T}, NaN)
+  @deprecate real{T<:Real}(z::Dual{T}) realpart(z)
+
   export
     Dual,
     Dual128,
     Dual64,
-    DualPair,
+    Dual32,
+    DualComplex256,
+    DualComplex128,
+    DualComplex64,
     dual,
-    dual128,
-    dual64,
+    epsilon,
+    realpart,
+    dualpart,
     isdual,
     dual_show,
-    epsilon,
     conjdual,
     absdual,
     abs2dual,
-    du
+    ɛ,
+    imɛ
 end
