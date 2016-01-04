@@ -229,7 +229,7 @@ for f in [:^, :(NaNMath.pow)]
         val = $f(value(z),value(w))
 
         du =
-        epsilon(z)*value(w)*(($f)(value(z),value(w)-1))+epsilon(w)*($f)(value(z),value(w))*log(value(z))
+        epsilon(z)*value(w)*(($f)(value(z),value(w)-1))+epsilon(w)*($f)(value(z),value(w))*NaNMath.log(value(z))
 
         Dual(val, du)
     end
