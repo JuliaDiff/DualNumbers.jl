@@ -226,10 +226,13 @@ abs2dual(z::Dual) = abs2(value(z))
 
 for f in [:^, :(NaNMath.pow)]
     @eval function ($f)(z::Dual, w::Dual)
+        if epsilon(w) == 0.0
+            return $f(z,value(w))
+        end
         val = $f(value(z),value(w))
 
         du =
-        epsilon(z)*value(w)*(($f)(value(z),value(w)-1))+epsilon(w)*($f)(value(z),value(w))*NaNMath.log(value(z))
+        epsilon(z)*value(w)*(($f)(value(z),value(w)-1))+epsilon(w)*($f)(value(z),value(w))*log(value(z))
 
         Dual(val, du)
     end
