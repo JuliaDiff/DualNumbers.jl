@@ -183,6 +183,11 @@ hash(z::Dual) = (x = hash(value(z)); epsilon(z)==0 ? x : bitmix(x,hash(epsilon(z
 float{T<:AbstractFloat}(z::Union{Dual{T},Dual{Complex{T}}})=z
 complex{T<:Real}(z::Dual{Complex{T}})=z
 
+floor{T<:Real}(::Type{T}, z::Dual) = floor(T, value(z))
+ceil{ T<:Real}(::Type{T}, z::Dual) = ceil( T, value(z))
+trunc{T<:Real}(::Type{T}, z::Dual) = trunc(T, value(z))
+round{T<:Real}(::Type{T}, z::Dual) = round(T, value(z))
+
 for op in (:real,:imag,:conj,:float,:complex)
     @eval begin
         $op(z::Dual) = Dual($op(value(z)),$op(epsilon(z)))
