@@ -134,3 +134,6 @@ test(x, y) = x^2 + y
 
 @test value(mod(Dual(15.23, 1), 10)) == 5.23
 @test epsilon(mod(Dual(15.23, 1), 10)) == 1
+
+@test epsilon(Dual(-2.0,1.0)^2.0) == -4
+@test epsilon(Dual(-2.0,1.0)^Dual(2.0,0.0)) == -4
