@@ -41,8 +41,8 @@ dual(z::Dual) = z
 @vectorize_1arg Dual value
 @vectorize_1arg Dual epsilon
 
-realpart = value
-dualpart = epsilon
+const realpart = value
+const dualpart = epsilon
 
 isnan(z::Dual) = isnan(value(z))
 isinf(z::Dual) = isinf(value(z))
