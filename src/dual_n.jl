@@ -150,6 +150,7 @@ end
 
 for (funsym, exp) in Calculus.symbolic_derivatives_1arg()
     funsym == :exp && continue
+    funsym == :abs2 && continue
     @eval function $(funsym)(z::Dual4)
         x = real(z)
         df = $exp
