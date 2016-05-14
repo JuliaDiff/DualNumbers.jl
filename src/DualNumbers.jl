@@ -12,7 +12,6 @@ module DualNumbers
   Base.@deprecate_binding du ɛ
   @deprecate inf{T}(::Type{Dual{T}}) convert(Dual{T}, Inf)
   @deprecate nan{T}(::Type{Dual{T}}) convert(Dual{T}, NaN)
-  @deprecate real{T<:Real}(z::Dual{T}) realpart(z)
 
   export
     Dual,
