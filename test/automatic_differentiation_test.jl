@@ -61,6 +61,12 @@ x = Dual(1.0,1.0)
 @test convert(Float64, Dual(10.0,0.0)) == 10.0
 @test convert(Dual{Int}, Dual(10.0,0.0)) == Dual(10,0)
 
+x = Dual(1.2,1.0)
+@test floor(Int, x) == 1
+@test ceil(Int, x)  == 2
+@test trunc(Int, x) == 1
+@test round(Int, x) == 1
+
 # test Dual{Complex}
 
 z = Dual(1.0+1.0im,1.0)
@@ -128,3 +134,6 @@ test(x, y) = x^2 + y
 
 @test value(mod(Dual(15.23, 1), 10)) == 5.23
 @test epsilon(mod(Dual(15.23, 1), 10)) == 1
+
+@test epsilon(Dual(-2.0,1.0)^2.0) == -4
+@test epsilon(Dual(-2.0,1.0)^Dual(2.0,0.0)) == -4

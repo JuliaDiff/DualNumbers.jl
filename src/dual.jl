@@ -41,8 +41,8 @@ dual(z::Dual) = z
 @vectorize_1arg Dual value
 @vectorize_1arg Dual epsilon
 
-realpart = value
-dualpart = epsilon
+const realpart = value
+const dualpart = epsilon
 
 isnan(z::Dual) = isnan(value(z))
 isinf(z::Dual) = isinf(value(z))
@@ -183,6 +183,11 @@ hash(z::Dual) = (x = hash(value(z)); epsilon(z)==0 ? x : bitmix(x,hash(epsilon(z
 float{T<:AbstractFloat}(z::Union{Dual{T},Dual{Complex{T}}})=z
 complex{T<:Real}(z::Dual{Complex{T}})=z
 
+floor{T<:Real}(::Type{T}, z::Dual) = floor(T, value(z))
+ceil{ T<:Real}(::Type{T}, z::Dual) = ceil( T, value(z))
+trunc{T<:Real}(::Type{T}, z::Dual) = trunc(T, value(z))
+round{T<:Real}(::Type{T}, z::Dual) = round(T, value(z))
+
 for op in (:real,:imag,:conj,:float,:complex)
     @eval begin
         $op(z::Dual) = Dual($op(value(z)),$op(epsilon(z)))
@@ -226,6 +231,9 @@ abs2dual(z::Dual) = abs2(value(z))
 
 for f in [:^, :(NaNMath.pow)]
     @eval function ($f)(z::Dual, w::Dual)
+        if epsilon(w) == 0.0
+            return $f(z,value(w))
+        end
         val = $f(value(z),value(w))
 
         du =
