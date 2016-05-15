@@ -195,8 +195,10 @@ for op in (:real,:imag,:conj,:float,:complex)
 end
 
 abs(z::Dual) = sqrt(abs2(z))
-abs2(z::Dual) = (ζ = conj(z)*z; Dual(real(value(ζ)),real(epsilon(ζ)))) # real(conj(z)*z) when real{T<:Real}(z::Dual{T})=z
-abs{T<:Real}(z::Dual{T})  = z ≥ 0 ? z : -z
+abs2(z::Dual) = real(conj(z)*z)
+
+real{T<:Real}(z::Dual{T}) = z
+abs{T<:Real}(z::Dual{T}) = z ≥ 0 ? z : -z
 
 angle{T<:Real}(z::Dual{T}) = z ≥ 0 ? zero(z) : one(z)*π
 angle{T<:Real}(z::Dual{Complex{T}}) = z == 0 ? (imag(epsilon(z)) == 0 ? Dual(zero(T),zero(T)) : Dual(zero(T),convert(T, Inf))) : real(log(sign(z))/im)
