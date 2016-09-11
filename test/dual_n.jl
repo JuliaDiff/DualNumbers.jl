@@ -1,5 +1,6 @@
 using DualNumbers
 import DualNumbers: Dual4, real, epsilon1, epsilon2, epsilon3, epsilon4
+import NaNMath
 using Base.Test
 
 
