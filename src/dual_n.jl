@@ -132,7 +132,7 @@ function ^(z::Dual4, n::Integer)
     zn1 = n*real(z)^(n-1)
     Dual4(real(z)^n, epsilon1(z)*zn1, epsilon2(z)*zn1, epsilon3(z)*zn1, epsilon4(z)*zn1)
 end
-^(z::Dual4, n::Rational) = invoke(^, (Dual4,Real), z,n)
+^(z::Dual4, n::Rational) = invoke(^, Tuple{Dual4,Real}, z,n)
 
 function ^(z::Dual4, n::Real)
     zn1 = n*real(z)^(n-1)
@@ -144,7 +144,7 @@ function NaNMath.pow(z::Dual4, n::Real)
     Dual4(NaNMath.pow(real(z),n), epsilon1(z)*powval, epsilon2(z)*powval, epsilon3(z)*powval, epsilon4(z)*powval)
 end
 function NaNMath.pow(z::Real, w::Dual4)
-    logval = NaNMath.pow(z,real(w))*log(z) 
+    logval = NaNMath.pow(z,real(w))*log(z)
     Dual4(NaNMath.pow(z,real(w)), epsilon1(w)*logval, epsilon2(w)*logval, epsilon3(w)*logval, epsilon4(w)*logval)
 end
 
