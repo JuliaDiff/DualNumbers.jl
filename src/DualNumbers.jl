@@ -5,6 +5,7 @@ module DualNumbers
 
   import NaNMath
   import Calculus
+  using Compat
 
   include("dual.jl")
   include("dual_n.jl")
