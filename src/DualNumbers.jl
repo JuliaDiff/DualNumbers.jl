@@ -8,7 +8,6 @@ module DualNumbers
   using Compat
 
   include("dual.jl")
-  include("dual_n.jl")
 
   Base.@deprecate_binding du ɛ
   @deprecate inf{T}(::Type{Dual{T}}) convert(Dual{T}, Inf)
