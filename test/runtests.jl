@@ -8,7 +8,3 @@ end
 module TestAutomaticDifferentiation
 include("automatic_differentiation_test.jl")
 end
-
-module TestDual
-include("dual_n.jl")
-end
