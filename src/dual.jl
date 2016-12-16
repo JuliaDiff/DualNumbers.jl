@@ -259,6 +259,8 @@ mod(z::Dual, n::Number) = Dual(mod(value(z), n), epsilon(z))
 NaNMath.pow(z::Dual, n::Number) = Dual(NaNMath.pow(value(z),n), epsilon(z)*n*NaNMath.pow(value(z),n-1))
 NaNMath.pow(z::Number, w::Dual) = Dual(NaNMath.pow(z,value(w)), epsilon(w)*NaNMath.pow(z,value(w))*log(z))
 
+inv(z::Dual) = dual(inv(value(z)),-epsilon(z)/value(z)^2)
+
 # force use of NaNMath functions in derivative calculations
 function to_nanmath(x::Expr)
     if x.head == :call
@@ -270,9 +272,13 @@ function to_nanmath(x::Expr)
 end
 to_nanmath(x) = x
 
+
+
+
 for (funsym, exp) in Calculus.symbolic_derivatives_1arg()
     funsym == :exp && continue
     funsym == :abs2 && continue
+    funsym == :inv && continue
     @eval function $(funsym)(z::Dual)
         x = value(z)
         xp = epsilon(z)

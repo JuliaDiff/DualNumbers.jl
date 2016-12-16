@@ -100,6 +100,10 @@ a = angle(z)
 
 @test angle(Dual(0.0+im,0.0+im)) == π/2
 
+
+# check bug in inv
+@test inv(dual(1.0+1.0im,1.0)) === 1/dual(1.0+1.0im,1.0) === dual(1.0+1.0im,1.0)^(-1)
+
 #
 # Tests limit definition. Let z = a + b ɛ, where a and b ∈ C.
 #
