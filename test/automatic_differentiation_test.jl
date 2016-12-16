@@ -139,3 +139,11 @@ test(x, y) = x^2 + y
 
 @test epsilon(Dual(-2.0,1.0)^2.0) == -4
 @test epsilon(Dual(-2.0,1.0)^Dual(2.0,0.0)) == -4
+
+
+# test for flipsign
+flipsign(Dual(1.0,1.0),2.0) == Dual(1.0,1.0)
+flipsign(Dual(1.0,1.0),-2.0) == Dual(-1.0,-1.0)
+flipsign(Dual(1.0,1.0),Dual(1.0,1.0)) == Dual(1.0,1.0)
+flipsign(Dual(1.0,1.0),Dual(0.0,-1.0)) == Dual(-1.0,-1.0)
+flipsign(-1.0,Dual(1.0,1.0)) == -1.0

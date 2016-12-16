@@ -203,6 +203,10 @@ abs{T<:Real}(z::Dual{T}) = z ≥ 0 ? z : -z
 angle{T<:Real}(z::Dual{T}) = z ≥ 0 ? zero(z) : one(z)*π
 angle{T<:Real}(z::Dual{Complex{T}}) = z == 0 ? (imag(epsilon(z)) == 0 ? Dual(zero(T),zero(T)) : Dual(zero(T),convert(T, Inf))) : real(log(sign(z))/im)
 
+flipsign(x::Dual,y::Dual) = y == 0 ? flipsign(x, epsilon(y)) : flipsign(x, value(y))
+flipsign(x, y::Dual) = y == 0 ? flipsign(x, epsilon(y)) : flipsign(x, value(y))
+flipsign(x::Dual, y) = dual(flipsign(value(x), y), flipsign(epsilon(x), y))
+
 # algebraic definitions
 conjdual(z::Dual) = Dual(value(z),-epsilon(z))
 absdual(z::Dual) = abs(value(z))
