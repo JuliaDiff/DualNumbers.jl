@@ -404,6 +404,10 @@ end
 ###################
 
 function Base.show{N}(io::IO, n::Dual{N})
+    if N == 0
+        print(io, value(n))
+        return
+    end
     print(io, value(n))
     print(io, " + ")
     for i in 1:N-1

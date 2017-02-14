@@ -17,10 +17,28 @@ module DualNumbers
 
   include("partials.jl")
   include("dual.jl")
+  include("deprecate.jl")
 
   export Dual,
   value,
-  partials
+  partials 
 
-
+  export
+      Dual128,
+      Dual64,
+      Dual32,
+      epsilon
+      #=DualComplex256,
+      DualComplex128,
+      DualComplex64,
+      dual,
+      realpart,
+      dualpart,
+      isdual,
+      dual_show,
+      conjdual,
+      absdual,
+      abs2dual,
+      ɛ,
+      imɛ
 end
