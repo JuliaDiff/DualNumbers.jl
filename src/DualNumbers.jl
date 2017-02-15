@@ -21,7 +21,7 @@ module DualNumbers
 
   export Dual,
   value,
-  partials 
+  partials
 
   export
       Dual128,
@@ -40,5 +40,5 @@ module DualNumbers
       absdual,
       abs2dual,
       ɛ,
-      imɛ
+      imɛ=#
 end
