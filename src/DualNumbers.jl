@@ -28,6 +28,9 @@ module DualNumbers
       Dual64,
       Dual32,
       epsilon
+      conjdual,
+      absdual,
+      abs2dual
       #=DualComplex256,
       DualComplex128,
       DualComplex64,
@@ -35,8 +38,5 @@ module DualNumbers
       realpart,
       dualpart,
       isdual,
-      dual_show,
-      conjdual,
-      absdual,
-      abs2dual,=#
+      dual_show=#
 end

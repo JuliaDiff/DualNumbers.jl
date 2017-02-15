@@ -50,6 +50,10 @@ degree{N,T}(::Type{Dual{N,T}}) = 1 + degree(T)
 @inline valtype{N,T}(::Dual{N,T}) = T
 @inline valtype{N,T}(::Type{Dual{N,T}}) = T
 
+@inline conjdual(x::Dual) = Dual(value(x), -partials(x))
+@inline absdual(x::Dual) = abs(value(x))
+@inline abs2dual(x::Dual) = abs2(value(x))
+
 #####################
 # Generic Functions #
 #####################
