@@ -404,17 +404,9 @@ end
 ###################
 
 function Base.show{N}(io::IO, n::Dual{N})
-    if N == 0
-        print(io, value(n))
-        return
+    print(io, "Dual(", value(n))
+    for i in 1:N
+        print(io, ",", partials(n, i))
     end
-    print(io, value(n))
-    print(io, " + ")
-    for i in 1:N-1
-        sub = string(2080 + i)
-        print(io, partials(n, i), "ϵ", unescape_string("\\" * "u" * sub))
-        print(io, " + ")
-    end
-    sub = string(2080 + N)
-    print(io, partials(n, N), "ϵ", unescape_string("\\" * "u" * sub))
+    print(io, ")")
 end
