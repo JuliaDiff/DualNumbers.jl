@@ -406,6 +406,8 @@ end
 @ambiguous @inline Base.atan2(y::Real, x::Dual) = calc_atan2(y, x)
 @ambiguous @inline Base.atan2(y::Dual, x::Real) = calc_atan2(y, x)
 
+@inline Base.mod(z::Dual, n::Number) = Dual(mod(value(z), n), partials(z))
+
 ###################
 # Pretty Printing #
 ###################
