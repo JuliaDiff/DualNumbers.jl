@@ -38,7 +38,5 @@ module DualNumbers
       dual_show,
       conjdual,
       absdual,
-      abs2dual,
-      ɛ,
-      imɛ=#
+      abs2dual,=#
 end
