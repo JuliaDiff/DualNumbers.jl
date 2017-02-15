@@ -54,6 +54,9 @@ degree{N,T}(::Type{Dual{N,T}}) = 1 + degree(T)
 @inline absdual(x::Dual) = abs(value(x))
 @inline abs2dual(x::Dual) = abs2(value(x))
 
+@inline isdual(x::Dual) = true
+@inline isdual(x::Real) = false
+
 #####################
 # Generic Functions #
 #####################

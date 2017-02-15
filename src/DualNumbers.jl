@@ -30,13 +30,13 @@ module DualNumbers
       epsilon
       conjdual,
       absdual,
-      abs2dual
+      abs2dual,
+      isdual
       #=DualComplex256,
       DualComplex128,
       DualComplex64,
       dual,
       realpart,
       dualpart,
-      isdual,
       dual_show=#
 end
