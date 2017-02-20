@@ -1,8 +1,9 @@
 module DualTest
 
 using Base.Test
-using ForwardDiff
-using ForwardDiff: Partials, Dual, value, partials
+#using ForwardDiff
+using DualNumbers
+using DualNumbers: Partials, Dual, value, partials
 
 import NaNMath
 import Calculus
@@ -84,15 +85,15 @@ for N in (0,3), M in (0,4), T in (Int, Float32)
         end
     end
 
-    @test ForwardDiff.npartials(FDNUM) == N
-    @test ForwardDiff.npartials(typeof(FDNUM)) == N
-    @test ForwardDiff.npartials(NESTED_FDNUM) == N
-    @test ForwardDiff.npartials(typeof(NESTED_FDNUM)) == N
+    @test DualNumbers.npartials(FDNUM) == N
+    @test DualNumbers.npartials(typeof(FDNUM)) == N
+    @test DualNumbers.npartials(NESTED_FDNUM) == N
+    @test DualNumbers.npartials(typeof(NESTED_FDNUM)) == N
 
-    @test ForwardDiff.valtype(FDNUM) == T
-    @test ForwardDiff.valtype(typeof(FDNUM)) == T
-    @test ForwardDiff.valtype(NESTED_FDNUM) == Dual{M,T}
-    @test ForwardDiff.valtype(typeof(NESTED_FDNUM)) == Dual{M,T}
+    @test DualNumbers.valtype(FDNUM) == T
+    @test DualNumbers.valtype(typeof(FDNUM)) == T
+    @test DualNumbers.valtype(NESTED_FDNUM) == Dual{M,T}
+    @test DualNumbers.valtype(typeof(NESTED_FDNUM)) == Dual{M,T}
 
     #####################
     # Generic Functions #
@@ -181,15 +182,15 @@ for N in (0,3), M in (0,4), T in (Int, Float32)
     # Predicates #
     #------------#
 
-    @test ForwardDiff.isconstant(zero(FDNUM))
-    @test ForwardDiff.isconstant(rand(FDNUM))
-    @test ForwardDiff.isconstant(one(FDNUM))
-    @test ForwardDiff.isconstant(FDNUM) == (N == 0)
+    @test DualNumbers.isconstant(zero(FDNUM))
+    @test DualNumbers.isconstant(rand(FDNUM))
+    @test DualNumbers.isconstant(one(FDNUM))
+    @test DualNumbers.isconstant(FDNUM) == (N == 0)
 
-    @test ForwardDiff.isconstant(zero(NESTED_FDNUM))
-    @test ForwardDiff.isconstant(rand(NESTED_FDNUM))
-    @test ForwardDiff.isconstant(one(NESTED_FDNUM))
-    @test ForwardDiff.isconstant(NESTED_FDNUM) == (N == 0)
+    @test DualNumbers.isconstant(zero(NESTED_FDNUM))
+    @test DualNumbers.isconstant(rand(NESTED_FDNUM))
+    @test DualNumbers.isconstant(one(NESTED_FDNUM))
+    @test DualNumbers.isconstant(NESTED_FDNUM) == (N == 0)
 
     @test isequal(FDNUM, Dual(PRIMAL, PARTIALS2))
     @test isequal(PRIMAL, PRIMAL2) == isequal(FDNUM, FDNUM2)
@@ -347,11 +348,11 @@ for N in (0,3), M in (0,4), T in (Int, Float32)
     @test PRIMAL - NESTED_FDNUM === Dual(PRIMAL - value(NESTED_FDNUM), -(partials(NESTED_FDNUM)))
     @test -(NESTED_FDNUM) === Dual(-(value(NESTED_FDNUM)), -(partials(NESTED_FDNUM)))
 
-    @test FDNUM * FDNUM2 === Dual(value(FDNUM) * value(FDNUM2), ForwardDiff._mul_partials(partials(FDNUM), partials(FDNUM2), value(FDNUM2), value(FDNUM)))
+    @test FDNUM * FDNUM2 === Dual(value(FDNUM) * value(FDNUM2), DualNumbers._mul_partials(partials(FDNUM), partials(FDNUM2), value(FDNUM2), value(FDNUM)))
     @test FDNUM * PRIMAL === Dual(value(FDNUM) * PRIMAL, partials(FDNUM) * PRIMAL)
     @test PRIMAL * FDNUM === Dual(value(FDNUM) * PRIMAL, partials(FDNUM) * PRIMAL)
 
-    @test NESTED_FDNUM * NESTED_FDNUM2 === Dual(value(NESTED_FDNUM) * value(NESTED_FDNUM2), ForwardDiff._mul_partials(partials(NESTED_FDNUM), partials(NESTED_FDNUM2), value(NESTED_FDNUM2), value(NESTED_FDNUM)))
+    @test NESTED_FDNUM * NESTED_FDNUM2 === Dual(value(NESTED_FDNUM) * value(NESTED_FDNUM2), DualNumbers._mul_partials(partials(NESTED_FDNUM), partials(NESTED_FDNUM2), value(NESTED_FDNUM2), value(NESTED_FDNUM)))
     @test NESTED_FDNUM * PRIMAL === Dual(value(NESTED_FDNUM) * PRIMAL, partials(NESTED_FDNUM) * PRIMAL)
     @test PRIMAL * NESTED_FDNUM === Dual(value(NESTED_FDNUM) * PRIMAL, partials(NESTED_FDNUM) * PRIMAL)
 
@@ -364,11 +365,11 @@ for N in (0,3), M in (0,4), T in (Int, Float32)
         @test Dual(PRIMAL) / Dual(FDNUM, FDNUM2) === PRIMAL / Dual(FDNUM, FDNUM2)
     end
 
-    test_approx_diffnums(FDNUM / FDNUM2, Dual(value(FDNUM) / value(FDNUM2), ForwardDiff._div_partials(partials(FDNUM), partials(FDNUM2), value(FDNUM), value(FDNUM2))))
+    test_approx_diffnums(FDNUM / FDNUM2, Dual(value(FDNUM) / value(FDNUM2), DualNumbers._div_partials(partials(FDNUM), partials(FDNUM2), value(FDNUM), value(FDNUM2))))
     test_approx_diffnums(FDNUM / PRIMAL, Dual(value(FDNUM) / PRIMAL, partials(FDNUM) / PRIMAL))
     test_approx_diffnums(PRIMAL / FDNUM, Dual(PRIMAL / value(FDNUM), (-(PRIMAL) / value(FDNUM)^2) * partials(FDNUM)))
 
-    test_approx_diffnums(NESTED_FDNUM / NESTED_FDNUM2, Dual(value(NESTED_FDNUM) / value(NESTED_FDNUM2), ForwardDiff._div_partials(partials(NESTED_FDNUM), partials(NESTED_FDNUM2), value(NESTED_FDNUM), value(NESTED_FDNUM2))))
+    test_approx_diffnums(NESTED_FDNUM / NESTED_FDNUM2, Dual(value(NESTED_FDNUM) / value(NESTED_FDNUM2), DualNumbers._div_partials(partials(NESTED_FDNUM), partials(NESTED_FDNUM2), value(NESTED_FDNUM), value(NESTED_FDNUM2))))
     test_approx_diffnums(NESTED_FDNUM / PRIMAL, Dual(value(NESTED_FDNUM) / PRIMAL, partials(NESTED_FDNUM) / PRIMAL))
     test_approx_diffnums(PRIMAL / NESTED_FDNUM, Dual(PRIMAL / value(NESTED_FDNUM), (-(PRIMAL) / value(NESTED_FDNUM)^2) * partials(NESTED_FDNUM)))
 
@@ -401,27 +402,27 @@ for N in (0,3), M in (0,4), T in (Int, Float32)
         UNSUPPORTED_NESTED_FUNCS = (:trigamma, :airyprime, :besselj1, :bessely1)
         DOMAIN_ERR_FUNCS = (:asec, :acsc, :asecd, :acscd, :acoth, :acosh)
 
-        for fsym in ForwardDiff.AUTO_DEFINED_UNARY_FUNCS
+        for fsym in DualNumbers.AUTO_DEFINED_UNARY_FUNCS
             try
                 v = :v
                 deriv = Calculus.differentiate(:($(fsym)($v)), v)
                 is_domain_err_func = fsym in DOMAIN_ERR_FUNCS
-                is_nanmath_func = fsym in ForwardDiff.NANMATH_FUNCS
+                is_nanmath_func = fsym in DualNumbers.NANMATH_FUNCS
                 is_unsupported_nested_func = fsym in UNSUPPORTED_NESTED_FUNCS
                 @eval begin
                     fdnum = $(is_domain_err_func ? FDNUM + 1 : FDNUM)
-                    $(v) = ForwardDiff.value(fdnum)
-                    $(test_approx_diffnums)($(fsym)(fdnum), ForwardDiff.Dual($(fsym)($v), $(deriv) * ForwardDiff.partials(fdnum)))
+                    $(v) = DualNumbers.value(fdnum)
+                    $(test_approx_diffnums)($(fsym)(fdnum), DualNumbers.Dual($(fsym)($v), $(deriv) * DualNumbers.partials(fdnum)))
                     if $(is_nanmath_func)
-                        $(test_approx_diffnums)(NaNMath.$(fsym)(fdnum), ForwardDiff.Dual(NaNMath.$(fsym)($v), $(deriv) * ForwardDiff.partials(fdnum)))
+                        $(test_approx_diffnums)(NaNMath.$(fsym)(fdnum), DualNumbers.Dual(NaNMath.$(fsym)($v), $(deriv) * DualNumbers.partials(fdnum)))
                     end
 
                     if $(!(is_unsupported_nested_func))
                         nested_fdnum = $(is_domain_err_func ? NESTED_FDNUM + 1 : NESTED_FDNUM)
-                        $(v) = ForwardDiff.value(nested_fdnum)
-                        $(test_approx_diffnums)($(fsym)(nested_fdnum), ForwardDiff.Dual($(fsym)($v), $(deriv) * ForwardDiff.partials(nested_fdnum)))
+                        $(v) = DualNumbers.value(nested_fdnum)
+                        $(test_approx_diffnums)($(fsym)(nested_fdnum), DualNumbers.Dual($(fsym)($v), $(deriv) * DualNumbers.partials(nested_fdnum)))
                         if $(is_nanmath_func)
-                            $(test_approx_diffnums)(NaNMath.$(fsym)(nested_fdnum), ForwardDiff.Dual(NaNMath.$(fsym)($v), $(deriv) * ForwardDiff.partials(nested_fdnum)))
+                            $(test_approx_diffnums)(NaNMath.$(fsym)(nested_fdnum), DualNumbers.Dual(NaNMath.$(fsym)($v), $(deriv) * DualNumbers.partials(nested_fdnum)))
                         end
                     end
                 end
@@ -437,7 +438,7 @@ for N in (0,3), M in (0,4), T in (Int, Float32)
 
     test_approx_diffnums(hypot(FDNUM, FDNUM2), sqrt(FDNUM^2 + FDNUM2^2))
     test_approx_diffnums(hypot(FDNUM, FDNUM2, FDNUM), sqrt(2*(FDNUM^2) + FDNUM2^2))
-    map(test_approx_diffnums, ForwardDiff.sincos(FDNUM), (sin(FDNUM), cos(FDNUM)))
+    map(test_approx_diffnums, DualNumbers.sincos(FDNUM), (sin(FDNUM), cos(FDNUM)))
 
     if T === Float32
         @test typeof(sqrt(FDNUM)) === typeof(FDNUM)
