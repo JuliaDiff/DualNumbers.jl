@@ -1,261 +1,300 @@
-typealias ReComp Union{Real,Complex}
+const ExternalReal = Union{subtypes(Real)...}
 
-immutable Dual{T<:ReComp} <: Number
+########
+# Dual #
+########
+
+immutable Dual{N,T<:Real} <: Real
     value::T
-    epsilon::T
-end
-Dual{S<:ReComp,T<:ReComp}(x::S, y::T) = Dual(promote(x,y)...)
-Dual(x::ReComp) = Dual(x, zero(x))
-
-const ɛ = Dual(false, true)
-const imɛ = Dual(Complex(false, false), Complex(false, true))
-
-typealias Dual128 Dual{Float64}
-typealias Dual64  Dual{Float32}
-typealias Dual32  Dual{Float16}
-typealias DualComplex256 Dual{Complex128}
-typealias DualComplex128 Dual{Complex64}
-typealias DualComplex64  Dual{Complex32}
-
-convert{T<:ReComp}(::Type{Dual{T}}, z::Dual{T}) = z
-convert{T<:ReComp}(::Type{Dual{T}}, z::Dual) = Dual{T}(convert(T, value(z)), convert(T, epsilon(z)))
-convert{T<:ReComp}(::Type{Dual{T}}, x::Number) = Dual{T}(convert(T, x), convert(T, 0))
-convert{T<:ReComp}(::Type{T}, z::Dual) = (epsilon(z)==0 ? convert(T, value(z)) : throw(InexactError()))
-
-promote_rule{T<:ReComp, S<:ReComp}(::Type{Dual{T}}, ::Type{Dual{S}}) = Dual{promote_type(T, S)}
-promote_rule{T<:ReComp, S<:ReComp}(::Type{Dual{T}}, ::Type{S}) = Dual{promote_type(T, S)}
-promote_rule{T<:ReComp}(::Type{Dual{T}}, ::Type{T}) = Dual{T}
-
-widen{T}(::Type{Dual{T}}) = Dual{widen(T)}
-
-value(z::Dual) = z.value
-epsilon(z::Dual) = z.epsilon
-
-dual(x::ReComp, y::ReComp) = Dual(x, y)
-dual(x::ReComp) = Dual(x)
-dual(z::Dual) = z
-
-Compat.@dep_vectorize_1arg ReComp dual
-Compat.@dep_vectorize_2arg ReComp dual
-Compat.@dep_vectorize_1arg Dual dual
-Compat.@dep_vectorize_1arg Dual value
-Compat.@dep_vectorize_1arg Dual epsilon
-
-const realpart = value
-const dualpart = epsilon
-
-isnan(z::Dual) = isnan(value(z))
-isinf(z::Dual) = isinf(value(z))
-isfinite(z::Dual) = isfinite(value(z))
-isdual(x::Dual) = true
-isdual(x::Number) = false
-eps(z::Dual) = eps(value(z))
-eps{T}(::Type{Dual{T}}) = eps(T)
-
-function dual_show{T<:Real}(io::IO, z::Dual{T}, compact::Bool)
-    x, y = value(z), epsilon(z)
-    if isnan(x) || isfinite(y)
-        compact ? showcompact(io,x) : show(io,x)
-        if signbit(y)==1 && !isnan(y)
-            y = -y
-            print(io, compact ? "-" : " - ")
-        else
-            print(io, compact ? "+" : " + ")
-        end
-        compact ? showcompact(io, y) : show(io, y)
-        printtimes(io, y)
-        print(io, "ɛ")
-    else
-        print(io, "Dual{",T,"}(", x, ",", y, ")")
-    end
+    partials::Partials{N,T}
 end
 
-function dual_show{T<:Complex}(io::IO, z::Dual{T}, compact::Bool)
-    x, y = value(z), epsilon(z)
-    xr, xi = reim(x)
-    yr, yi = reim(y)
-    if isnan(x) || isfinite(y)
-        compact ? showcompact(io,x) : show(io,x)
-        if signbit(yr)==1 && !isnan(y)
-            yr = -yr
-            print(io, " - ")
-        else
-            print(io, " + ")
-        end
-        if compact
-            if signbit(yi)==1 && !isnan(y)
-                yi = -yi
-                showcompact(io, yr)
-                printtimes(io, yr)
-                print(io, "ɛ-")
-                showcompact(io, yi)
-            else
-                showcompact(io, yr)
-                print(io, "ɛ+")
-                showcompact(io, yi)
+################
+# Constructors #
+################
+
+Dual{N,T}(value::T, partials::Partials{N,T}) = Dual{N,T}(value, partials)
+
+function Dual{N,A,B}(value::A, partials::Partials{N,B})
+    T = promote_type(A, B)
+    return Dual(convert(T, value), convert(Partials{N,T}, partials))
+end
+
+Dual(value::Real, partials::Tuple) = Dual(value, Partials(partials))
+Dual(value::Real, partials::Tuple{}) = Dual(value, Partials{0,typeof(value)}(partials))
+Dual(value::Real, partials::Real...) = Dual(value, partials)
+
+##############################
+# Utility/Accessor Functions #
+##############################
+
+@inline value(x::Real) = x
+@inline value(n::Dual) = n.value
+
+@inline partials(x::Real) = Partials{0,typeof(x)}(tuple())
+@inline partials(n::Dual) = n.partials
+@inline partials(x::Real, i...) = zero(x)
+@inline partials(n::Dual, i) = n.partials[i]
+@inline partials(n::Dual, i, j) = partials(n, i).partials[j]
+@inline partials(n::Dual, i, j, k...) = partials(partials(n, i, j), k...)
+
+@inline npartials{N}(::Dual{N}) = N
+@inline npartials{N,T}(::Type{Dual{N,T}}) = N
+
+@inline degree{T}(::T) = degree(T)
+@inline degree{T}(::Type{T}) = 0
+degree{N,T}(::Type{Dual{N,T}}) = 1 + degree(T)
+
+@inline valtype{T}(::T) = T
+@inline valtype{T}(::Type{T}) = T
+@inline valtype{N,T}(::Dual{N,T}) = T
+@inline valtype{N,T}(::Type{Dual{N,T}}) = T
+
+@inline conjdual(x::Dual) = Dual(value(x), -partials(x))
+@inline absdual(x::Dual) = abs(value(x))
+@inline abs2dual(x::Dual) = abs2(value(x))
+
+@inline isdual(x::Dual) = true
+@inline isdual(x::Real) = false
+
+#####################
+# Generic Functions #
+#####################
+
+macro ambiguous(ex)
+    def = ex.head == :macrocall ? ex.args[2] : ex
+    sig = def.args[1]
+    body = def.args[2]
+    f = isa(sig.args[1], Expr) && sig.args[1].head == :curly ? sig.args[1].args[1] : sig.args[1]
+    a, b = sig.args[2].args[1], sig.args[3].args[1]
+    Ta, Tb = sig.args[2].args[2], sig.args[3].args[2]
+    if isa(a, Symbol) && isa(b, Symbol) && isa(Ta, Symbol) && isa(Tb, Symbol)
+        if Ta == :Real && Tb == :Dual
+            return quote
+                @inline $(f){A<:ExternalReal,B<:Dual}(a::Dual{0,A}, b::Dual{0,B}) = Dual($(f)(value(a), value(b)))
+                @inline $(f){M,A<:ExternalReal,B<:Dual}(a::Dual{0,A}, b::Dual{M,B}) = $(f)(value(a), b)
+                @inline $(f){N,A<:ExternalReal,B<:Dual}(a::Dual{N,A}, b::Dual{0,B}) = $(f)(a, value(b))
+                @inline $(f){N,A<:ExternalReal,B<:Dual}($(a)::Dual{N,A}, $(b)::Dual{N,B}) = $(body)
+                @inline $(f){N,M,A<:ExternalReal,B<:Dual}($(a)::Dual{N,A}, $(b)::Dual{M,B}) = $(body)
+                $(esc(ex))
+            end
+        elseif Ta == :Dual && Tb == :Real
+            return quote
+                @inline $(f){A<:Dual,B<:ExternalReal}(a::Dual{0,A}, b::Dual{0,B}) = Dual($(f)(value(a), value(b)))
+                @inline $(f){M,A<:Dual,B<:ExternalReal}(a::Dual{0,A}, b::Dual{M,B}) = $(f)(value(a), b)
+                @inline $(f){N,A<:Dual,B<:ExternalReal}(a::Dual{N,A}, b::Dual{0,B}) = $(f)(a, value(b))
+                @inline $(f){N,A<:Dual,B<:ExternalReal}($(a)::Dual{N,A}, $(b)::Dual{N,B}) = $(body)
+                @inline $(f){N,M,A<:Dual,B<:ExternalReal}($(a)::Dual{N,A}, $(b)::Dual{M,B}) = $(body)
+                $(esc(ex))
             end
         else
-            if signbit(yi)==1 && !isnan(y)
-                yi = -yi
-                show(io, yr)
-                printtimes(io, yr)
-                print(io, "ɛ - ")
-                show(io, yi)
-            else
-                show(io, yr)
-                print(io, "ɛ + ")
-                show(io, yi)
-            end
+            return esc(ex)
         end
-        printtimes(io, yi)
-        print(io, "imɛ")
-    else
-        print(io, "Dual{",T,"}(", x, ",", y, ")")
     end
-end
-
-function dual_show{T<:Bool}(io::IO, z::Dual{T}, compact::Bool)
-    x, y = value(z), epsilon(z)
-    if !value(z) && epsilon(z)
-        print(io, "ɛ")
-    else
-        print(io, "Dual{",T,"}(", x, ",", y, ")")
-    end
-end
-
-function dual_show{T<:Bool}(io::IO, z::Dual{Complex{T}}, compact::Bool)
-    x, y = value(z), epsilon(z)
-    xr, xi = reim(x)
-    yr, yi = reim(y)
-    if !xr
-        if xi*!yr*!yi
-            print(io, "im")
-        elseif !xi*yr*!yi
-            print(io, "ɛ")
-        elseif !xi*!yr*yi
-            print(io, "imɛ")
+    return quote
+        @inline $(f){N,M,A<:Real,B<:Real}(a::Dual{N,A}, b::Dual{M,B}) = error("npartials($(typeof(a))) != npartials($(typeof(b)))")
+        if !(in($f, (isequal, ==, isless, <, <=, <)))
+            @inline $(f){A<:Real,B<:Real}(a::Dual{0,A}, b::Dual{0,B}) = Dual($(f)(value(a), value(b)))
+            @inline $(f){M,A<:Real,B<:Real}(a::Dual{0,A}, b::Dual{M,B}) = $(f)(value(a), b)
+            @inline $(f){N,A<:Real,B<:Real}(a::Dual{N,A}, b::Dual{0,B}) = $(f)(a, value(b))
         end
-    else
-        print(io, "Dual{",T,"}(", x, ",", y, ")")
+        $(esc(ex))
     end
 end
 
-function printtimes(io::IO, x::Real)
-    if !(isa(x,Integer) || isa(x,Rational) ||
-         isa(x,AbstractFloat) && isfinite(x))
-        print(io, "*")
-    end
+Base.copy(n::Dual) = n
+
+Base.eps(n::Dual) = eps(value(n))
+Base.eps{D<:Dual}(::Type{D}) = eps(valtype(D))
+
+Base.rtoldefault{N, T <: Real}(::Type{Dual{N,T}}) = Base.rtoldefault(T)
+
+Base.floor{T<:Real}(::Type{T}, n::Dual) = floor(T, value(n))
+Base.floor(n::Dual) = floor(value(n))
+
+Base.ceil{T<:Real}(::Type{T}, n::Dual) = ceil(T, value(n))
+Base.ceil(n::Dual) = ceil(value(n))
+
+Base.trunc{T<:Real}(::Type{T}, n::Dual) = trunc(T, value(n))
+Base.trunc(n::Dual) = trunc(value(n))
+
+Base.round{T<:Real}(::Type{T}, n::Dual) = round(T, value(n))
+Base.round(n::Dual) = round(value(n))
+
+Base.hash(n::Dual) = hash(value(n))
+Base.hash(n::Dual, hsh::UInt64) = hash(value(n), hsh)
+
+function Base.read{N,T}(io::IO, ::Type{Dual{N,T}})
+    value = read(io, T)
+    partials = read(io, Partials{N,T})
+    return Dual{N,T}(value, partials)
 end
 
-show(io::IO, z::Dual) = dual_show(io, z, false)
-showcompact(io::IO, z::Dual) = dual_show(io, z, true)
-
-function read{T<:ReComp}(s::IO, ::Type{Dual{T}})
-    x = read(s, T)
-    y = read(s, T)
-    Dual{T}(x, y)
-end
-function write(s::IO, z::Dual)
-    write(s, value(z))
-    write(s, epsilon(z))
+function Base.write(io::IO, n::Dual)
+    write(io, value(n))
+    write(io, partials(n))
 end
 
+@inline Base.zero(n::Dual) = zero(typeof(n))
+@inline Base.zero{N,T}(::Type{Dual{N,T}}) = Dual(zero(T), zero(Partials{N,T}))
 
-## Generic functions of dual numbers ##
+@inline Base.one(n::Dual) = one(typeof(n))
+@inline Base.one{N,T}(::Type{Dual{N,T}}) = Dual(one(T), zero(Partials{N,T}))
 
-convert(::Type{Dual}, z::Dual) = z
-convert(::Type{Dual}, x::Number) = Dual(x)
+@inline Base.rand(n::Dual) = rand(typeof(n))
+@inline Base.rand{N,T}(::Type{Dual{N,T}}) = Dual(rand(T), zero(Partials{N,T}))
+@inline Base.rand(rng::AbstractRNG, n::Dual) = rand(rng, typeof(n))
+@inline Base.rand{N,T}(rng::AbstractRNG, ::Type{Dual{N,T}}) = Dual(rand(rng, T), zero(Partials{N,T}))
 
-==(z::Dual, w::Dual) = value(z) == value(w)
-==(z::Dual, x::Number) = value(z) == x
-==(x::Number, z::Dual) = value(z) == x
+# Predicates #
+#------------#
 
-isequal(z::Dual, w::Dual) = isequal(value(z),value(w)) && isequal(epsilon(z), epsilon(w))
-isequal(z::Dual, x::Number) = isequal(value(z), x) && isequal(epsilon(z), zero(x))
-isequal(x::Number, z::Dual) = isequal(z, x)
+isconstant(n::Dual) = iszero(partials(n))
 
-isless{T<:Real}(z::Dual{T},w::Dual{T}) = value(z) < value(w)
-isless{T<:Real}(z::Real,w::Dual{T}) = z < value(w)
-isless{T<:Real}(z::Dual{T},w::Real) = value(z) < w
+@ambiguous Base.isequal{N}(a::Dual{N}, b::Dual{N}) = isequal(value(a), value(b))
+@ambiguous @compat(Base.:(==)){N}(a::Dual{N}, b::Dual{N}) = value(a) == value(b)
+@ambiguous Base.isless{N}(a::Dual{N}, b::Dual{N}) = value(a) < value(b)
+@ambiguous @compat(Base.:<){N}(a::Dual{N}, b::Dual{N}) = isless(a, b)
+@ambiguous @compat(Base.:(<=)){N}(a::Dual{N}, b::Dual{N}) = <=(value(a), value(b))
 
-hash(z::Dual) = (x = hash(value(z)); epsilon(z)==0 ? x : bitmix(x,hash(epsilon(z))))
+for T in (AbstractFloat, Irrational, Real)
+    Base.isequal(n::Dual, x::T) = isequal(value(n), x)
+    Base.isequal(x::T, n::Dual) = isequal(n, x)
 
-float{T<:AbstractFloat}(z::Union{Dual{T},Dual{Complex{T}}})=z
-complex{T<:Real}(z::Dual{Complex{T}})=z
+    @compat(Base.:(==))(n::Dual, x::T) = (value(n) == x)
+    @compat(Base.:(==))(x::T, n::Dual) = ==(n, x)
 
-floor{T<:Real}(::Type{T}, z::Dual) = floor(T, value(z))
-ceil{ T<:Real}(::Type{T}, z::Dual) = ceil( T, value(z))
-trunc{T<:Real}(::Type{T}, z::Dual) = trunc(T, value(z))
-round{T<:Real}(::Type{T}, z::Dual) = round(T, value(z))
+    Base.isless(n::Dual, x::T) = value(n) < x
+    Base.isless(x::T, n::Dual) = x < value(n)
 
-for op in (:real,:imag,:conj,:float,:complex)
+    @compat(Base.:<)(n::Dual, x::T) = isless(n, x)
+    @compat(Base.:<)(x::T, n::Dual) = isless(x, n)
+
+    @compat(Base.:(<=))(n::Dual, x::T) = <=(value(n), x)
+    @compat(Base.:(<=))(x::T, n::Dual) = <=(x, value(n))
+end
+
+Base.isnan(n::Dual) = isnan(value(n))
+Base.isfinite(n::Dual) = isfinite(value(n))
+Base.isinf(n::Dual) = isinf(value(n))
+Base.isreal(n::Dual) = isreal(value(n))
+Base.isinteger(n::Dual) = isinteger(value(n))
+Base.iseven(n::Dual) = iseven(value(n))
+Base.isodd(n::Dual) = isodd(value(n))
+
+########################
+# Promotion/Conversion #
+########################
+
+Base.promote_rule{N1,N2,A<:Real,B<:Real}(D1::Type{Dual{N1,A}}, D2::Type{Dual{N2,B}}) = error("can't promote $(D1) and $(D2)")
+Base.promote_rule{N,A<:Real,B<:Real}(::Type{Dual{N,A}}, ::Type{Dual{N,B}}) = Dual{N,promote_type(A, B)}
+Base.promote_rule{N,T<:Real}(::Type{Dual{N,T}}, ::Type{BigFloat}) = Dual{N,promote_type(T, BigFloat)}
+Base.promote_rule{N,T<:Real}(::Type{BigFloat}, ::Type{Dual{N,T}}) = Dual{N,promote_type(BigFloat, T)}
+Base.promote_rule{N,T<:Real}(::Type{Dual{N,T}}, ::Type{Bool}) = Dual{N,promote_type(T, Bool)}
+Base.promote_rule{N,T<:Real}(::Type{Bool}, ::Type{Dual{N,T}}) = Dual{N,promote_type(Bool, T)}
+Base.promote_rule{N,T<:Real,s}(::Type{Dual{N,T}}, ::Type{Irrational{s}}) = Dual{N,promote_type(T, Irrational{s})}
+Base.promote_rule{N,s,T<:Real}(::Type{Irrational{s}}, ::Type{Dual{N,T}}) = Dual{N,promote_type(Irrational{s}, T)}
+Base.promote_rule{N,A<:Real,B<:Real}(::Type{Dual{N,A}}, ::Type{B}) = Dual{N,promote_type(A, B)}
+Base.promote_rule{N,A<:Real,B<:Real}(::Type{A}, ::Type{Dual{N,B}}) = Dual{N,promote_type(A, B)}
+
+Base.convert(::Type{Dual}, n::Dual) = n
+Base.convert{N,T<:Real}(::Type{Dual{N,T}}, n::Dual{N}) = Dual(convert(T, value(n)), convert(Partials{N,T}, partials(n)))
+Base.convert{D<:Dual}(::Type{D}, n::D) = n
+Base.convert{N,T<:Real}(::Type{Dual{N,T}}, x::Real) = Dual(convert(T, x), zero(Partials{N,T}))
+Base.convert(::Type{Dual}, x::Real) = Dual(x)
+
+Base.promote_array_type{D<:Dual, A<:AbstractFloat}(F, ::Type{D}, ::Type{A}) = promote_type(D, A)
+Base.promote_array_type{D<:Dual, A<:AbstractFloat, P}(F, ::Type{D}, ::Type{A}, ::Type{P}) = P
+Base.promote_array_type{A<:AbstractFloat, D<:Dual}(F, ::Type{A}, ::Type{D}) = promote_type(D, A)
+Base.promote_array_type{A<:AbstractFloat, D<:Dual, P}(F, ::Type{A}, ::Type{D}, ::Type{P}) = P
+
+Base.float{N,T}(n::Dual{N,T}) = Dual{N,promote_type(T, Float16)}(n)
+
+########
+# Math #
+########
+
+# Addition/Subtraction #
+#----------------------#
+
+@ambiguous @inline @compat(Base.:+){N}(n1::Dual{N}, n2::Dual{N}) = Dual(value(n1) + value(n2), partials(n1) + partials(n2))
+@ambiguous @inline @compat(Base.:+)(n::Dual, x::Real) = Dual(value(n) + x, partials(n))
+@ambiguous @inline @compat(Base.:+)(x::Real, n::Dual) = n + x
+
+@ambiguous @inline @compat(Base.:-){N}(n1::Dual{N}, n2::Dual{N}) = Dual(value(n1) - value(n2), partials(n1) - partials(n2))
+@ambiguous @inline @compat(Base.:-)(n::Dual, x::Real) = Dual(value(n) - x, partials(n))
+@ambiguous @inline @compat(Base.:-)(x::Real, n::Dual) = Dual(x - value(n), -(partials(n)))
+@inline @compat(Base.:-)(n::Dual) = Dual(-(value(n)), -(partials(n)))
+
+# Multiplication #
+#----------------#
+
+@inline @compat(Base.:*)(n::Dual, x::Bool) = x ? n : (signbit(value(n))==0 ? zero(n) : -zero(n))
+@inline @compat(Base.:*)(x::Bool, n::Dual) = n * x
+
+@ambiguous @inline function @compat(Base.:*){N}(n1::Dual{N}, n2::Dual{N})
+    v1, v2 = value(n1), value(n2)
+    return Dual(v1 * v2, _mul_partials(partials(n1), partials(n2), v2, v1))
+end
+
+@ambiguous @inline @compat(Base.:*)(n::Dual, x::Real) = Dual(value(n) * x, partials(n) * x)
+@ambiguous @inline @compat(Base.:*)(x::Real, n::Dual) = n * x
+
+# Division #
+#----------#
+
+@ambiguous @inline function @compat(Base.:/){N}(n1::Dual{N}, n2::Dual{N})
+    v1, v2 = value(n1), value(n2)
+    return Dual(v1 / v2, _div_partials(partials(n1), partials(n2), v1, v2))
+end
+
+@ambiguous @inline function @compat(Base.:/)(x::Real, n::Dual)
+    v = value(n)
+    divv = x / v
+    return Dual(divv, -(divv / v) * partials(n))
+end
+
+@ambiguous @inline @compat(Base.:/)(n::Dual, x::Real) = Dual(value(n) / x, partials(n) / x)
+
+# Exponentiation #
+#----------------#
+
+for f in (macroexpand(:(@compat(Base.:^))), :(NaNMath.pow))
     @eval begin
-        $op(z::Dual) = Dual($op(value(z)),$op(epsilon(z)))
-    end
-end
-
-abs(z::Dual) = sqrt(abs2(z))
-abs2(z::Dual) = real(conj(z)*z)
-
-real{T<:Real}(z::Dual{T}) = z
-abs{T<:Real}(z::Dual{T}) = z ≥ 0 ? z : -z
-
-angle{T<:Real}(z::Dual{T}) = z ≥ 0 ? zero(z) : one(z)*π
-angle{T<:Real}(z::Dual{Complex{T}}) = z == 0 ? (imag(epsilon(z)) == 0 ? Dual(zero(T),zero(T)) : Dual(zero(T),convert(T, Inf))) : real(log(sign(z))/im)
-
-# algebraic definitions
-conjdual(z::Dual) = Dual(value(z),-epsilon(z))
-absdual(z::Dual) = abs(value(z))
-abs2dual(z::Dual) = abs2(value(z))
-
-# algebra
-
-+(z::Dual, w::Dual) = Dual(value(z)+value(w), epsilon(z)+epsilon(w))
-+(z::Number, w::Dual) = Dual(z+value(w), epsilon(w))
-+(z::Dual, w::Number) = Dual(value(z)+w, epsilon(z))
-
--(z::Dual) = Dual(-value(z), -epsilon(z))
--(z::Dual, w::Dual) = Dual(value(z)-value(w), epsilon(z)-epsilon(w))
--(z::Number, w::Dual) = Dual(z-value(w), -epsilon(w))
--(z::Dual, w::Number) = Dual(value(z)-w, epsilon(z))
-
-# avoid ambiguous definition with Bool*Number
-*(x::Bool, z::Dual) = ifelse(x, z, ifelse(signbit(real(value(z)))==0, zero(z), -zero(z)))
-*(x::Dual, z::Bool) = z*x
-
-*(z::Dual, w::Dual) = Dual(value(z)*value(w), epsilon(z)*value(w)+value(z)*epsilon(w))
-*(x::Number, z::Dual) = Dual(x*value(z), x*epsilon(z))
-*(z::Dual, x::Number) = Dual(x*value(z), x*epsilon(z))
-
-/(z::Dual, w::Dual) = Dual(value(z)/value(w), (epsilon(z)*value(w)-value(z)*epsilon(w))/(value(w)*value(w)))
-/(z::Number, w::Dual) = Dual(z/value(w), -z*epsilon(w)/value(w)^2)
-/(z::Dual, x::Number) = Dual(value(z)/x, epsilon(z)/x)
-
-for f in [:^, :(NaNMath.pow)]
-    @eval function ($f)(z::Dual, w::Dual)
-        if epsilon(w) == 0.0
-            return $f(z,value(w))
+        @ambiguous @inline function ($f){N}(n1::Dual{N}, n2::Dual{N})
+            v1, v2 = value(n1), value(n2)
+            expv = ($f)(v1, v2)
+            powval = v2 * ($f)(v1, v2 - 1)
+            logval = isconstant(n2) ? one(expv) : expv * log(v1)
+            new_partials = _mul_partials(partials(n1), partials(n2), powval, logval)
+            return Dual(expv, new_partials)
         end
-        val = $f(value(z),value(w))
 
-        du =
-        epsilon(z)*value(w)*(($f)(value(z),value(w)-1))+epsilon(w)*($f)(value(z),value(w))*log(value(z))
+        @inline ($f)(::Base.Irrational{:e}, n::Dual) = exp(n)
+    end
 
-        Dual(val, du)
+    for T in (:Integer, :Rational, :Real)
+        @eval begin
+            @ambiguous @inline function ($f)(n::Dual, x::$(T))
+                v = value(n)
+                expv = ($f)(v, x)
+                deriv = x * ($f)(v, x - 1)
+                return Dual(expv, deriv * partials(n))
+            end
+
+            @ambiguous @inline function ($f)(x::$(T), n::Dual)
+                v = value(n)
+                expv = ($f)(x, v)
+                deriv = expv*log(x)
+                return Dual(expv, deriv * partials(n))
+            end
+        end
     end
 end
 
-mod(z::Dual, n::Number) = Dual(mod(value(z), n), epsilon(z))
+# Unary Math Functions #
+#--------------------- #
 
-# these two definitions are needed to fix ambiguity warnings
-^(z::Dual, n::Integer) = Dual(value(z)^n, epsilon(z)*n*value(z)^(n-1))
-^(z::Dual, n::Rational) = Dual(value(z)^n, epsilon(z)*n*value(z)^(n-1))
-
-^(z::Dual, n::Number) = Dual(value(z)^n, epsilon(z)*n*value(z)^(n-1))
-NaNMath.pow(z::Dual, n::Number) = Dual(NaNMath.pow(value(z),n), epsilon(z)*n*NaNMath.pow(value(z),n-1))
-NaNMath.pow(z::Number, w::Dual) = Dual(NaNMath.pow(z,value(w)), epsilon(w)*NaNMath.pow(z,value(w))*log(z))
-
-# force use of NaNMath functions in derivative calculations
 function to_nanmath(x::Expr)
     if x.head == :call
         funsym = Expr(:.,:NaNMath,Base.Meta.quot(x.args[1]))
@@ -264,36 +303,119 @@ function to_nanmath(x::Expr)
         return Expr(:call,[to_nanmath(z) for z in x.args]...)
     end
 end
+
 to_nanmath(x) = x
 
-for (funsym, exp) in Calculus.symbolic_derivatives_1arg()
-    funsym == :exp && continue
-    funsym == :abs2 && continue
-    @eval function $(funsym)(z::Dual)
-        x = value(z)
-        xp = epsilon(z)
-        Dual($(funsym)(x),xp*$exp)
+@inline Base.conj(n::Dual) = n
+@inline Base.transpose(n::Dual) = n
+@inline Base.ctranspose(n::Dual) = n
+@inline Base.abs(n::Dual) = signbit(value(n)) ? -n : n
+
+for fsym in AUTO_DEFINED_UNARY_FUNCS
+    v = :v
+    deriv = Calculus.differentiate(:($(fsym)($v)), v)
+
+    # exp and sqrt are manually defined below
+    if !(in(fsym, (:exp, :sqrt)))
+        @eval begin
+            @inline function Base.$(fsym)(n::Dual)
+                $(v) = value(n)
+                return Dual($(fsym)($v), $(deriv) * partials(n))
+            end
+        end
     end
+
     # extend corresponding NaNMath methods
-    if funsym in (:sin, :cos, :tan, :asin, :acos, :acosh, :atanh, :log, :log2, :log10,
-          :lgamma, :log1p)
-        funsym = Expr(:.,:NaNMath,Base.Meta.quot(funsym))
-        @eval function $(funsym)(z::Dual)
-            x = value(z)
-            xp = epsilon(z)
-            Dual($(funsym)(x),xp*$(to_nanmath(exp)))
+    if fsym in NANMATH_FUNCS
+        nan_deriv = to_nanmath(deriv)
+        @eval begin
+            @inline function NaNMath.$(fsym)(n::Dual)
+                v = value(n)
+                return Dual(NaNMath.$(fsym)($v), $(nan_deriv) * partials(n))
+            end
         end
     end
 end
 
-# only need to compute exp/cis once
-exp(z::Dual) = (expval = exp(value(z)); Dual(expval, epsilon(z)*expval))
-cis(z::Dual) = (cisval = cis(value(z)); Dual(cisval, im*epsilon(z)*cisval))
+#################
+# Special Cases #
+#################
 
-## TODO: should be generated in Calculus
-sinpi(z::Dual) = Dual(sinpi(value(z)),epsilon(z)*cospi(value(z))*π)
-cospi(z::Dual) = Dual(cospi(value(z)),-epsilon(z)*sinpi(value(z))*π)
+# Manually Optimized Functions #
+#------------------------------#
 
-if VERSION >= v"0.5.0-dev+5429"
-    Base.checkindex(::Type{Bool}, inds::AbstractUnitRange, i::Dual) = checkindex(Bool, inds, value(i))
+@inline function Base.exp{N}(n::Dual{N})
+    expv = exp(value(n))
+    return Dual(expv, expv * partials(n))
+end
+
+@inline function Base.sqrt{N}(n::Dual{N})
+    sqrtv = sqrt(value(n))
+    deriv = inv(sqrtv + sqrtv)
+    return Dual(sqrtv, deriv * partials(n))
+end
+
+@inline function calc_hypot(x, y)
+    vx = value(x)
+    vy = value(y)
+    h = hypot(vx, vy)
+    return Dual(h, (vx/h) * partials(x) + (vy/h) * partials(y))
+end
+
+@inline function calc_hypot(x, y, z)
+    vx = value(x)
+    vy = value(y)
+    vz = value(z)
+    h = hypot(vx, vy, vz)
+    return Dual(h, (vx/h) * partials(x) + (vy/h) * partials(y) + (vz/h) * partials(z))
+end
+
+@ambiguous @inline Base.hypot{N}(x::Dual{N}, y::Dual{N}) = calc_hypot(x, y)
+@ambiguous @inline Base.hypot(x::Dual, y::Real) = calc_hypot(x, y)
+@ambiguous @inline Base.hypot(x::Real, y::Dual) = calc_hypot(x, y)
+
+@inline Base.hypot(x::Dual, y::Dual, z::Dual) = calc_hypot(x, y, z)
+
+@inline Base.hypot(x::Real, y::Dual, z::Dual) = calc_hypot(x, y, z)
+@inline Base.hypot(x::Dual, y::Real, z::Dual) = calc_hypot(x, y, z)
+@inline Base.hypot(x::Dual, y::Dual, z::Real) = calc_hypot(x, y, z)
+
+@inline Base.hypot(x::Dual, y::Real, z::Real) = calc_hypot(x, y, z)
+@inline Base.hypot(x::Real, y::Dual, z::Real) = calc_hypot(x, y, z)
+@inline Base.hypot(x::Real, y::Real, z::Dual) = calc_hypot(x, y, z)
+
+@inline sincos(n) = (sin(n), cos(n))
+
+@inline function sincos(n::Dual)
+    sn, cn = sincos(value(n))
+    return (Dual(sn, cn * partials(n)), Dual(cn, -sn * partials(n)))
+end
+
+# Other Functions #
+#-----------------#
+
+@inline function calc_atan2(y, x)
+    z = y / x
+    v = value(z)
+    atan2v = atan2(value(y), value(x))
+    deriv = inv(one(v) + v*v)
+    return Dual(atan2v, deriv * partials(z))
+end
+
+@ambiguous @inline Base.atan2{N}(y::Dual{N}, x::Dual{N}) = calc_atan2(y, x)
+@ambiguous @inline Base.atan2(y::Real, x::Dual) = calc_atan2(y, x)
+@ambiguous @inline Base.atan2(y::Dual, x::Real) = calc_atan2(y, x)
+
+@inline Base.mod(z::Dual, n::Number) = Dual(mod(value(z), n), partials(z))
+
+###################
+# Pretty Printing #
+###################
+
+function Base.show{N}(io::IO, n::Dual{N})
+    print(io, "Dual(", value(n))
+    for i in 1:N
+        print(io, ",", partials(n, i))
+    end
+    print(io, ")")
 end

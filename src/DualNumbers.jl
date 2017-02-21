@@ -7,29 +7,36 @@ module DualNumbers
   import Calculus
   using Compat
 
-  include("dual.jl")
+  const NANSAFE_MODE_ENABLED = false                                              
+                                                                                  
+  const IS_MULTITHREADED_JULIA = VERSION >= v"0.5.0-dev+923" 
+  const AUTO_DEFINED_UNARY_FUNCS = map(first, Calculus.symbolic_derivatives_1arg())
 
-  Base.@deprecate_binding du ɛ
-  @deprecate inf{T}(::Type{Dual{T}}) convert(Dual{T}, Inf)
-  @deprecate nan{T}(::Type{Dual{T}}) convert(Dual{T}, NaN)
+  const NANMATH_FUNCS = (:sin, :cos, :tan, :asin, :acos, :acosh,                  
+                         :atanh, :log, :log2, :log10, :lgamma, :log1p)
+
+  include("partials.jl")
+  include("dual.jl")
+  include("deprecate.jl")
+
+  export Dual,
+  value,
+  partials
 
   export
-    Dual,
-    Dual128,
-    Dual64,
-    Dual32,
-    DualComplex256,
-    DualComplex128,
-    DualComplex64,
-    dual,
-    epsilon,
-    realpart,
-    dualpart,
-    isdual,
-    dual_show,
-    conjdual,
-    absdual,
-    abs2dual,
-    ɛ,
-    imɛ
+      Dual128,
+      Dual64,
+      Dual32,
+      epsilon
+      conjdual,
+      absdual,
+      abs2dual,
+      isdual
+      #=DualComplex256,
+      DualComplex128,
+      DualComplex64,
+      dual,
+      realpart,
+      dualpart,
+      dual_show=#
 end
