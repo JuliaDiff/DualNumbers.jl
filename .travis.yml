@@ -1,5 +1,7 @@
 # Documentation: http://docs.travis-ci.com/user/languages/julia/
 language: julia
+git:
+  depth: 99999
 os:
   - linux
   - osx
