@@ -6,35 +6,35 @@ using Compat
 x = Dual(2, 1)
 y = x^3
 
-@test_approx_eq value(y) 2.0^3
-@test_approx_eq epsilon(y) 3.0*2^2
+@test value(y) ≈ 2.0^3
+@test epsilon(y) ≈ 3.0*2^2
 
 y = x^3.0
 
-@test_approx_eq value(y) 2.0^3
-@test_approx_eq epsilon(y) 3.0*2^2
+@test value(y) ≈ 2.0^3
+@test epsilon(y) ≈ 3.0*2^2
 
 y = sin(x)+exp(x)
-@test_approx_eq value(y) sin(2)+exp(2)
-@test_approx_eq epsilon(y) cos(2)+exp(2)
+@test value(y) ≈ sin(2)+exp(2)
+@test epsilon(y) ≈ cos(2)+exp(2)
 
 @test x > 1
 y = abs(-x)
-@test_approx_eq value(y) 2.0
-@test_approx_eq epsilon(y) 1.0
+@test value(y) ≈ 2.0
+@test epsilon(y) ≈ 1.0
 
 @test isequal(1.0,Dual(1.0))
 
 y = 1/x
-@test_approx_eq value(y) 1/2
-@test_approx_eq epsilon(y) -1/2^2
+@test value(y) ≈ 1/2
+@test epsilon(y) ≈ -1/2^2
 
 Q = [1.0 0.1; 0.1 1.0]
 x = @compat dual.([1.0,2.0])
 x[1] = Dual(1.0,1.0)
 y = (1/2)*dot(x,Q*x)
-@test_approx_eq value(y) 2.7
-@test_approx_eq epsilon(y) 1.2
+@test value(y) ≈ 2.7
+@test epsilon(y) ≈ 1.2
 
 function squareroot(x)
     it = x
@@ -44,11 +44,11 @@ function squareroot(x)
     return it
 end
 
-@test_approx_eq epsilon(squareroot(Dual(10000.0,1.0))) 0.005
+@test epsilon(squareroot(Dual(10000.0,1.0))) ≈ 0.005
 
-@test_approx_eq epsilon(exp(1)^Dual(1.0,1.0)) exp(1)
-@test_approx_eq epsilon(NaNMath.pow(exp(1),Dual(1.0,1.0))) exp(1)
-@test_approx_eq epsilon(NaNMath.sin(Dual(1.0,1.0))) cos(1)
+@test epsilon(exp(1)^Dual(1.0,1.0)) ≈ exp(1)
+@test epsilon(NaNMath.pow(exp(1),Dual(1.0,1.0))) ≈ exp(1)
+@test epsilon(NaNMath.sin(Dual(1.0,1.0))) ≈ cos(1)
 
 @test Dual(1.0,3) == Dual(1.0,3.0)
 x = Dual(1.0,1.0)

@@ -1,4 +1,4 @@
-typealias ReComp Union{Real,Complex}
+const ReComp = Union{Real,Complex}
 
 immutable Dual{T<:ReComp} <: Number
     value::T
@@ -10,12 +10,12 @@ Dual(x::ReComp) = Dual(x, zero(x))
 const ɛ = Dual(false, true)
 const imɛ = Dual(Complex(false, false), Complex(false, true))
 
-typealias Dual128 Dual{Float64}
-typealias Dual64  Dual{Float32}
-typealias Dual32  Dual{Float16}
-typealias DualComplex256 Dual{Complex128}
-typealias DualComplex128 Dual{Complex64}
-typealias DualComplex64  Dual{Complex32}
+const Dual128 = Dual{Float64}
+const Dual64  = Dual{Float32}
+const Dual32  = Dual{Float16}
+const DualComplex256 = Dual{Complex128}
+const DualComplex128 = Dual{Complex64}
+const DualComplex64  = Dual{Complex32}
 
 convert{T<:ReComp}(::Type{Dual{T}}, z::Dual{T}) = z
 convert{T<:ReComp}(::Type{Dual{T}}, z::Dual) = Dual{T}(convert(T, value(z)), convert(T, epsilon(z)))
