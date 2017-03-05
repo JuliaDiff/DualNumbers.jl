@@ -9,8 +9,11 @@ julia:
   - nightly
 notifications:
   email: false
-script:
-  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia -e 'Pkg.clone(pwd()); Pkg.build("DualNumbers"); Pkg.test("DualNumbers"; coverage=true)'
+# Workaround for https://github.com/travis-ci/travis-ci/issues/4942
+git:
+  depth: 99999
+#script:
+#  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+#  - julia -e 'Pkg.clone(pwd()); Pkg.build("DualNumbers"); Pkg.test("DualNumbers"; coverage=true)'
 after_success:
   - julia -e 'cd(Pkg.dir("DualNumbers")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
