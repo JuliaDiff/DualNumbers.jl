@@ -183,6 +183,10 @@ hash(z::Dual) = (x = hash(value(z)); epsilon(z)==0 ? x : bitmix(x,hash(epsilon(z
 float{T<:AbstractFloat}(z::Union{Dual{T},Dual{Complex{T}}})=z
 complex{T<:Real}(z::Dual{Complex{T}})=z
 
+floor(z::Dual) = floor(value(z))
+ceil(z::Dual)  = ceil(value(z))
+trunc(z::Dual) = trunc(value(z))
+round(z::Dual) = round(value(z))
 floor{T<:Real}(::Type{T}, z::Dual) = floor(T, value(z))
 ceil{ T<:Real}(::Type{T}, z::Dual) = ceil( T, value(z))
 trunc{T<:Real}(::Type{T}, z::Dual) = trunc(T, value(z))
