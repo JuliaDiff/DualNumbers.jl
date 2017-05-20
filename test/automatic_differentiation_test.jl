@@ -64,10 +64,14 @@ x = Dual(1.0,1.0)
 @test convert(Dual{Int}, Dual(10.0,0.0)) == Dual(10,0)
 
 x = Dual(1.2,1.0)
-@test floor(Int, x) == 1
-@test ceil(Int, x)  == 2
-@test trunc(Int, x) == 1
-@test round(Int, x) == 1
+@test floor(x) === 1.0
+@test ceil(x)  === 2.0
+@test trunc(x) === 1.0
+@test round(x) === 1.0
+@test floor(Int, x) === 1
+@test ceil(Int, x)  === 2
+@test trunc(Int, x) === 1
+@test round(Int, x) === 1
 
 # test Dual{Complex}
 
