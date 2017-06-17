@@ -28,6 +28,7 @@ promote_rule{T<:ReComp}(::Type{Dual{T}}, ::Type{T}) = Dual{T}
 
 widen{T}(::Type{Dual{T}}) = Dual{widen(T)}
 
+value(z<:ReComp) = z
 value(z::Dual) = z.value
 epsilon(z::Dual) = z.epsilon
 
