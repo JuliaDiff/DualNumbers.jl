@@ -129,6 +129,11 @@ f = @compat exp.(zv)
 # tests norms and inequalities
 @test norm(f,Inf) ≤ norm(f) ≤ norm(f,1)
 
+# test value overloading
+@test value(2.3)==2.3
+@test value(1.0+2im)==(1.0+2im)
+@test value(Dual(-2.0,9.0))==value(-2.0)
+
 # tests for constant ɛ
 @test epsilon(1.0 + ɛ) == 1.0
 @test epsilon(1.0 + 0.0ɛ) == 0.0
