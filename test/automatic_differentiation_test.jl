@@ -133,6 +133,11 @@ f = @compat exp.(zv)
 @test value(2.3)==2.3
 @test value(1.0+2im)==(1.0+2im)
 @test value(Dual(-2.0,9.0))==value(-2.0)
+@test value.(2.0*ones(10,1))==2.0*ones(10,1)
+
+# test epsilon overloading
+@test epsilon(2.3)==0
+@test epsilon(1.0+2im)==0
 
 # tests for constant ɛ
 @test epsilon(1.0 + ɛ) == 1.0

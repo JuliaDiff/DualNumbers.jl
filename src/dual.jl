@@ -31,6 +31,7 @@ widen{T}(::Type{Dual{T}}) = Dual{widen(T)}
 value(z::ReComp) = z
 value(z::Dual) = z.value
 epsilon(z::Dual) = z.epsilon
+epsilon(z::ReComp) =0
 
 dual(x::ReComp, y::ReComp) = Dual(x, y)
 dual(x::ReComp) = Dual(x)
@@ -40,6 +41,8 @@ Compat.@dep_vectorize_1arg ReComp dual
 Compat.@dep_vectorize_2arg ReComp dual
 Compat.@dep_vectorize_1arg Dual dual
 Compat.@dep_vectorize_1arg Dual value
+Compat.@dep_vectorize_1arg ReComp value
+Compat.@dep_vectorize_1arg ReComp epsilon
 Compat.@dep_vectorize_1arg Dual epsilon
 
 const realpart = value
