@@ -29,6 +29,14 @@ y = 1/x
 @test value(y) ≈ 1/2
 @test epsilon(y) ≈ -1/2^2
 
+x = max(Dual(3,1), Dual(3,-1))
+@test value(x) == 3
+@test isnan(epsilon(x))
+x = max(Dual(4,1), Dual(3,-1))
+@test x == Dual(4,1)
+x = max(Dual(4,1), Dual(5,-1))
+@test x == Dual(5,-1)
+
 Q = [1.0 0.1; 0.1 1.0]
 x = @compat dual.([1.0,2.0])
 x[1] = Dual(1.0,1.0)

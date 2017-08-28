@@ -259,6 +259,16 @@ mod(z::Dual, n::Number) = Dual(mod(value(z), n), epsilon(z))
 NaNMath.pow(z::Dual, n::Number) = Dual(NaNMath.pow(value(z),n), epsilon(z)*n*NaNMath.pow(value(z),n-1))
 NaNMath.pow(z::Number, w::Dual) = Dual(NaNMath.pow(z,value(w)), epsilon(w)*NaNMath.pow(z,value(w))*log(z))
 
+function Base.max(a::Dual, b::Dual)
+    if value(a) > value(b)
+        return a
+    elseif value(a) < value(b)
+        return b
+    else # value(a) == value(b)
+        return ifelse(epsilon(a) == epsilon(b), a, Dual(value(a), NaN))
+    end
+end
+
 # force use of NaNMath functions in derivative calculations
 function to_nanmath(x::Expr)
     if x.head == :call
