@@ -24,10 +24,10 @@ epsilon part represents the fermionic direction), in screw theory, in motor
 and spatial vector algebra, and in computer science due to its relation with the
 forward mode of automatic differentiation.
 
-The [ForwardDiff](https://github.com/scidom/ForwardDiff.jl) package implements forward mode automatic differentiation in Julia using several approaches. One
-of these approaches employs dual numbers. For this reason, the `ForwardDiff` package relies on `DualNumbers`. The
-user is referred to `ForwardDiff` for some examples on how to perform forward mode automatic differentiation using
-dual numbers in Julia.
+**For the purpose of forward-mode automatic differentiation, this package is
+superseded by [ForwardDiff](https://github.com/JuliaDiff/ForwardDiff.jl).**
+
+**`DualNumbers` does not have an active maintainer.**
 
 ## Supported functions
 
