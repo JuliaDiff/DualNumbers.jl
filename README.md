@@ -5,7 +5,8 @@
 
 ### Scope of DualNumbers.jl
 
-The `DualNumbers` package defines the `Dual` type to represent dual numbers and
+The `DualNumbers` [Julia](http://julialang.org) package defines the `Dual` type
+to represent [dual numbers](https://en.wikipedia.org/wiki/Dual_number), and
 supports standard mathematical operations on them. Conversions and promotions
 are defined to allow performing operations on combinations of dual numbers with
 predefined Julia numeric types.
