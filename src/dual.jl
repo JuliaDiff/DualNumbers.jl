@@ -163,80 +163,79 @@ end
 
 ## Generic functions of dual numbers ##
 
-convert(::Type{Dual}, z::Dual) = z
-convert(::Type{Dual}, x::Number) = Dual(x)
+@inline convert(::Type{Dual}, z::Dual) = z
+@inline convert(::Type{Dual}, x::Number) = Dual(x)
 
-==(z::Dual, w::Dual) = value(z) == value(w)
-==(z::Dual, x::Number) = value(z) == x
-==(x::Number, z::Dual) = value(z) == x
+@inline ==(z::Dual, w::Dual) = value(z) == value(w)
+@inline ==(z::Dual, x::Number) = value(z) == x
+@inline ==(x::Number, z::Dual) = value(z) == x
 
-isequal(z::Dual, w::Dual) = isequal(value(z),value(w)) && isequal(epsilon(z), epsilon(w))
-isequal(z::Dual, x::Number) = isequal(value(z), x) && isequal(epsilon(z), zero(x))
-isequal(x::Number, z::Dual) = isequal(z, x)
+@inline isequal(z::Dual, w::Dual) = isequal(value(z),value(w)) && isequal(epsilon(z), epsilon(w))
+@inline isequal(z::Dual, x::Number) = isequal(value(z), x) && isequal(epsilon(z), zero(x))
+@inline isequal(x::Number, z::Dual) = isequal(z, x)
 
-isless{T<:Real}(z::Dual{T},w::Dual{T}) = value(z) < value(w)
-isless{T<:Real}(z::Real,w::Dual{T}) = z < value(w)
-isless{T<:Real}(z::Dual{T},w::Real) = value(z) < w
+@inline isless{T<:Real}(z::Dual{T},w::Dual{T}) = value(z) < value(w)
+@inline isless{T<:Real}(z::Real,w::Dual{T}) = z < value(w)
+@inline isless{T<:Real}(z::Dual{T},w::Real) = value(z) < w
 
-hash(z::Dual) = (x = hash(value(z)); epsilon(z)==0 ? x : bitmix(x,hash(epsilon(z))))
+@inline hash(z::Dual) = (x = hash(value(z)); epsilon(z)==0 ? x : bitmix(x,hash(epsilon(z))))
 
-float{T<:AbstractFloat}(z::Union{Dual{T},Dual{Complex{T}}})=z
-complex{T<:Real}(z::Dual{Complex{T}})=z
+@inline float{T<:AbstractFloat}(z::Union{Dual{T},Dual{Complex{T}}})=z
+@inline complex{T<:Real}(z::Dual{Complex{T}})=z
 
-floor(z::Dual) = floor(value(z))
-ceil(z::Dual)  = ceil(value(z))
-trunc(z::Dual) = trunc(value(z))
-round(z::Dual) = round(value(z))
-floor{T<:Real}(::Type{T}, z::Dual) = floor(T, value(z))
-ceil{ T<:Real}(::Type{T}, z::Dual) = ceil( T, value(z))
-trunc{T<:Real}(::Type{T}, z::Dual) = trunc(T, value(z))
-round{T<:Real}(::Type{T}, z::Dual) = round(T, value(z))
+@inline floor(z::Dual) = floor(value(z))
+@inline ceil(z::Dual)  = ceil(value(z))
+@inline trunc(z::Dual) = trunc(value(z))
+@inline round(z::Dual) = round(value(z))
+@inline floor{T<:Real}(::Type{T}, z::Dual) = floor(T, value(z))
+@inline ceil{ T<:Real}(::Type{T}, z::Dual) = ceil( T, value(z))
+@inline trunc{T<:Real}(::Type{T}, z::Dual) = trunc(T, value(z))
+@inline round{T<:Real}(::Type{T}, z::Dual) = round(T, value(z))
 
 for op in (:real,:imag,:conj,:float,:complex)
     @eval begin
-        $op(z::Dual) = Dual($op(value(z)),$op(epsilon(z)))
+        @inline $op(z::Dual) = Dual($op(value(z)),$op(epsilon(z)))
     end
 end
 
-abs(z::Dual) = sqrt(abs2(z))
-abs2(z::Dual) = real(conj(z)*z)
+@inline abs(z::Dual) = sqrt(abs2(z))
+@inline abs2(z::Dual) = real(conj(z)*z)
 
-real{T<:Real}(z::Dual{T}) = z
-abs{T<:Real}(z::Dual{T}) = z ≥ 0 ? z : -z
+@inline real{T<:Real}(z::Dual{T}) = z
+@inline abs{T<:Real}(z::Dual{T}) = z ≥ 0 ? z : -z
 
-angle{T<:Real}(z::Dual{T}) = z ≥ 0 ? zero(z) : one(z)*π
-angle{T<:Real}(z::Dual{Complex{T}}) = z == 0 ? (imag(epsilon(z)) == 0 ? Dual(zero(T),zero(T)) : Dual(zero(T),convert(T, Inf))) : real(log(sign(z))/im)
+@inline angle{T<:Real}(z::Dual{T}) = z ≥ 0 ? zero(z) : one(z)*π
+@inline angle{T<:Real}(z::Dual{Complex{T}}) = z == 0 ? (imag(epsilon(z)) == 0 ? Dual(zero(T),zero(T)) : Dual(zero(T),convert(T, Inf))) : real(log(sign(z))/im)
 
 # algebraic definitions
-conjdual(z::Dual) = Dual(value(z),-epsilon(z))
-absdual(z::Dual) = abs(value(z))
-abs2dual(z::Dual) = abs2(value(z))
+@inline conjdual(z::Dual) = Dual(value(z),-epsilon(z))
+@inline absdual(z::Dual) = abs(value(z))
+@inline abs2dual(z::Dual) = abs2(value(z))
 
 # algebra
+@inline +(z::Dual, w::Dual) = Dual(value(z)+value(w), epsilon(z)+epsilon(w))
+@inline +(z::Number, w::Dual) = Dual(z+value(w), epsilon(w))
+@inline +(z::Dual, w::Number) = Dual(value(z)+w, epsilon(z))
 
-+(z::Dual, w::Dual) = Dual(value(z)+value(w), epsilon(z)+epsilon(w))
-+(z::Number, w::Dual) = Dual(z+value(w), epsilon(w))
-+(z::Dual, w::Number) = Dual(value(z)+w, epsilon(z))
-
--(z::Dual) = Dual(-value(z), -epsilon(z))
--(z::Dual, w::Dual) = Dual(value(z)-value(w), epsilon(z)-epsilon(w))
--(z::Number, w::Dual) = Dual(z-value(w), -epsilon(w))
--(z::Dual, w::Number) = Dual(value(z)-w, epsilon(z))
+@inline -(z::Dual) = Dual(-value(z), -epsilon(z))
+@inline -(z::Dual, w::Dual) = Dual(value(z)-value(w), epsilon(z)-epsilon(w))
+@inline -(z::Number, w::Dual) = Dual(z-value(w), -epsilon(w))
+@inline -(z::Dual, w::Number) = Dual(value(z)-w, epsilon(z))
 
 # avoid ambiguous definition with Bool*Number
-*(x::Bool, z::Dual) = ifelse(x, z, ifelse(signbit(real(value(z)))==0, zero(z), -zero(z)))
-*(x::Dual, z::Bool) = z*x
+@inline *(x::Bool, z::Dual) = ifelse(x, z, ifelse(signbit(real(value(z)))==0, zero(z), -zero(z)))
+@inline *(x::Dual, z::Bool) = z*x
 
-*(z::Dual, w::Dual) = Dual(value(z)*value(w), epsilon(z)*value(w)+value(z)*epsilon(w))
-*(x::Number, z::Dual) = Dual(x*value(z), x*epsilon(z))
-*(z::Dual, x::Number) = Dual(x*value(z), x*epsilon(z))
+@inline *(z::Dual, w::Dual) = Dual(value(z)*value(w), epsilon(z)*value(w)+value(z)*epsilon(w))
+@inline *(x::Number, z::Dual) = Dual(x*value(z), x*epsilon(z))
+@inline *(z::Dual, x::Number) = Dual(x*value(z), x*epsilon(z))
 
-/(z::Dual, w::Dual) = Dual(value(z)/value(w), (epsilon(z)*value(w)-value(z)*epsilon(w))/(value(w)*value(w)))
-/(z::Number, w::Dual) = Dual(z/value(w), -z*epsilon(w)/value(w)^2)
-/(z::Dual, x::Number) = Dual(value(z)/x, epsilon(z)/x)
+@inline /(z::Dual, w::Dual) = Dual(value(z)/value(w), (epsilon(z)*value(w)-value(z)*epsilon(w))/(value(w)*value(w)))
+@inline /(z::Number, w::Dual) = Dual(z/value(w), -z*epsilon(w)/value(w)^2)
+@inline /(z::Dual, x::Number) = Dual(value(z)/x, epsilon(z)/x)
 
 for f in [:^, :(NaNMath.pow)]
-    @eval function ($f)(z::Dual, w::Dual)
+    @eval @inline function ($f)(z::Dual, w::Dual)
         if epsilon(w) == 0.0
             return $f(z,value(w))
         end
@@ -249,15 +248,15 @@ for f in [:^, :(NaNMath.pow)]
     end
 end
 
-mod(z::Dual, n::Number) = Dual(mod(value(z), n), epsilon(z))
+@inline mod(z::Dual, n::Number) = Dual(mod(value(z), n), epsilon(z))
 
 # these two definitions are needed to fix ambiguity warnings
-^(z::Dual, n::Integer) = Dual(value(z)^n, epsilon(z)*n*value(z)^(n-1))
-^(z::Dual, n::Rational) = Dual(value(z)^n, epsilon(z)*n*value(z)^(n-1))
+@inline ^(z::Dual, n::Integer)  = Dual(value(z)^n, epsilon(z)*n*value(z)^(n-1))
+@inline ^(z::Dual, n::Rational) = Dual(value(z)^n, epsilon(z)*n*value(z)^(n-1))
 
-^(z::Dual, n::Number) = Dual(value(z)^n, epsilon(z)*n*value(z)^(n-1))
-NaNMath.pow(z::Dual, n::Number) = Dual(NaNMath.pow(value(z),n), epsilon(z)*n*NaNMath.pow(value(z),n-1))
-NaNMath.pow(z::Number, w::Dual) = Dual(NaNMath.pow(z,value(w)), epsilon(w)*NaNMath.pow(z,value(w))*log(z))
+@inline ^(z::Dual, n::Number) = Dual(value(z)^n, epsilon(z)*n*value(z)^(n-1))
+@inline NaNMath.pow(z::Dual, n::Number) = Dual(NaNMath.pow(value(z),n), epsilon(z)*n*NaNMath.pow(value(z),n-1))
+@inline NaNMath.pow(z::Number, w::Dual) = Dual(NaNMath.pow(z,value(w)), epsilon(w)*NaNMath.pow(z,value(w))*log(z))
 
 # force use of NaNMath functions in derivative calculations
 function to_nanmath(x::Expr)
@@ -273,7 +272,7 @@ to_nanmath(x) = x
 for (funsym, exp) in Calculus.symbolic_derivatives_1arg()
     funsym == :exp && continue
     funsym == :abs2 && continue
-    @eval function $(funsym)(z::Dual)
+    @eval @inline function $(funsym)(z::Dual)
         x = value(z)
         xp = epsilon(z)
         Dual($(funsym)(x),xp*$exp)
@@ -282,7 +281,7 @@ for (funsym, exp) in Calculus.symbolic_derivatives_1arg()
     if funsym in (:sin, :cos, :tan, :asin, :acos, :acosh, :atanh, :log, :log2, :log10,
           :lgamma, :log1p)
         funsym = Expr(:.,:NaNMath,Base.Meta.quot(funsym))
-        @eval function $(funsym)(z::Dual)
+        @eval @inline function $(funsym)(z::Dual)
             x = value(z)
             xp = epsilon(z)
             Dual($(funsym)(x),xp*$(to_nanmath(exp)))
@@ -291,12 +290,12 @@ for (funsym, exp) in Calculus.symbolic_derivatives_1arg()
 end
 
 # only need to compute exp/cis once
-exp(z::Dual) = (expval = exp(value(z)); Dual(expval, epsilon(z)*expval))
-cis(z::Dual) = (cisval = cis(value(z)); Dual(cisval, im*epsilon(z)*cisval))
+@inline exp(z::Dual) = (expval = exp(value(z)); Dual(expval, epsilon(z)*expval))
+@inline cis(z::Dual) = (cisval = cis(value(z)); Dual(cisval, im*epsilon(z)*cisval))
 
 ## TODO: should be generated in Calculus
-sinpi(z::Dual) = Dual(sinpi(value(z)),epsilon(z)*cospi(value(z))*π)
-cospi(z::Dual) = Dual(cospi(value(z)),-epsilon(z)*sinpi(value(z))*π)
+@inline sinpi(z::Dual) = Dual(sinpi(value(z)),epsilon(z)*cospi(value(z))*π)
+@inline cospi(z::Dual) = Dual(cospi(value(z)),-epsilon(z)*sinpi(value(z))*π)
 
 if VERSION >= v"0.5.0-dev+5429"
     Base.checkindex(::Type{Bool}, inds::AbstractUnitRange, i::Dual) = checkindex(Bool, inds, value(i))
