@@ -207,6 +207,10 @@ abs{T<:Real}(z::Dual{T}) = z ≥ 0 ? z : -z
 angle{T<:Real}(z::Dual{T}) = z ≥ 0 ? zero(z) : one(z)*π
 angle{T<:Real}(z::Dual{Complex{T}}) = z == 0 ? (imag(epsilon(z)) == 0 ? Dual(zero(T),zero(T)) : Dual(zero(T),convert(T, Inf))) : real(log(sign(z))/im)
 
+flipsign(x::Dual,y::Dual) = y == 0 ? flipsign(x, epsilon(y)) : flipsign(x, value(y))
+flipsign(x, y::Dual) = y == 0 ? flipsign(x, epsilon(y)) : flipsign(x, value(y))
+flipsign(x::Dual, y) = dual(flipsign(value(x), y), flipsign(epsilon(x), y))
+
 # algebraic definitions
 conjdual(z::Dual) = Dual(value(z),-epsilon(z))
 absdual(z::Dual) = abs(value(z))
@@ -259,6 +263,8 @@ mod(z::Dual, n::Number) = Dual(mod(value(z), n), epsilon(z))
 NaNMath.pow(z::Dual, n::Number) = Dual(NaNMath.pow(value(z),n), epsilon(z)*n*NaNMath.pow(value(z),n-1))
 NaNMath.pow(z::Number, w::Dual) = Dual(NaNMath.pow(z,value(w)), epsilon(w)*NaNMath.pow(z,value(w))*log(z))
 
+inv(z::Dual) = dual(inv(value(z)),-epsilon(z)/value(z)^2)
+
 # force use of NaNMath functions in derivative calculations
 function to_nanmath(x::Expr)
     if x.head == :call
@@ -270,9 +276,13 @@ function to_nanmath(x::Expr)
 end
 to_nanmath(x) = x
 
+
+
+
 for (funsym, exp) in Calculus.symbolic_derivatives_1arg()
     funsym == :exp && continue
     funsym == :abs2 && continue
+    funsym == :inv && continue
     @eval function $(funsym)(z::Dual)
         x = value(z)
         xp = epsilon(z)

@@ -104,6 +104,10 @@ a = angle(z)
 
 @test angle(Dual(0.0+im,0.0+im)) == π/2
 
+
+# check bug in inv
+@test inv(dual(1.0+1.0im,1.0)) === 1/dual(1.0+1.0im,1.0) === dual(1.0+1.0im,1.0)^(-1)
+
 #
 # Tests limit definition. Let z = a + b ɛ, where a and b ∈ C.
 #
@@ -143,3 +147,11 @@ test(x, y) = x^2 + y
 
 @test epsilon(Dual(-2.0,1.0)^2.0) == -4
 @test epsilon(Dual(-2.0,1.0)^Dual(2.0,0.0)) == -4
+
+
+# test for flipsign
+flipsign(Dual(1.0,1.0),2.0) == Dual(1.0,1.0)
+flipsign(Dual(1.0,1.0),-2.0) == Dual(-1.0,-1.0)
+flipsign(Dual(1.0,1.0),Dual(1.0,1.0)) == Dual(1.0,1.0)
+flipsign(Dual(1.0,1.0),Dual(0.0,-1.0)) == Dual(-1.0,-1.0)
+flipsign(-1.0,Dual(1.0,1.0)) == -1.0
