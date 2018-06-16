@@ -8,8 +8,6 @@ import Calculus
 
 include("dual.jl")
 
-Base.@deprecate_binding du ɛ
-
 export
     Dual,
     Dual128,
