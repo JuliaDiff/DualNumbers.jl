@@ -1,7 +1,9 @@
-using DualNumbers, Base.Test
+using DualNumbers
+using Compat
+using Compat.Test
+using Compat.LinearAlgebra
 import DualNumbers: value
 import NaNMath
-using Compat
 
 x = Dual(2, 1)
 y = x^3
@@ -30,7 +32,7 @@ y = 1/x
 @test epsilon(y) ≈ -1/2^2
 
 Q = [1.0 0.1; 0.1 1.0]
-x = @compat dual.([1.0,2.0])
+x = dual.([1.0,2.0])
 x[1] = Dual(1.0,1.0)
 y = (1/2)*dot(x,Q*x)
 @test value(y) ≈ 2.7
@@ -120,11 +122,11 @@ z = Dual(1.0+1.0im,cis(π/2))
 @test abs(z) ≡ sqrt(2) + 1/sqrt(2)*ɛ
 
 # tests vectorized methods
-const zv = @compat dual.(collect(1.0:10.0), ones(10))
+const zv = dual.(collect(1.0:10.0), ones(10))
 
-f = @compat exp.(zv)
-@test all(@compat value.(f) .== exp.(value.(zv)))
-@test all(@compat epsilon.(f) .== epsilon.(zv) .* exp.(value.(zv)))
+f = exp.(zv)
+@test all(value.(f) .== exp.(value.(zv)))
+@test all(epsilon.(f) .== epsilon.(zv) .* exp.(value.(zv)))
 
 # tests norms and inequalities
 @test norm(f,Inf) ≤ norm(f) ≤ norm(f,1)

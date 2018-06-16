@@ -1,19 +1,16 @@
 __precompile__()
 
 module DualNumbers
-  importall Base
 
-  import NaNMath
-  import Calculus
-  using Compat
+using Compat
+import NaNMath
+import Calculus
 
-  include("dual.jl")
+include("dual.jl")
 
-  Base.@deprecate_binding du ɛ
-  @deprecate inf{T}(::Type{Dual{T}}) convert(Dual{T}, Inf)
-  @deprecate nan{T}(::Type{Dual{T}}) convert(Dual{T}, NaN)
+Base.@deprecate_binding du ɛ
 
-  export
+export
     Dual,
     Dual128,
     Dual64,
@@ -32,4 +29,5 @@ module DualNumbers
     abs2dual,
     ɛ,
     imɛ
-end
+
+end # module

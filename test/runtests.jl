@@ -1,8 +1,8 @@
-using DualNumbers, Base.Test
+using DualNumbers
+using Compat
+using Compat.Test
 
-if VERSION >= v"0.5.0-dev+5429"
-    @test checkindex(Bool, 1:3, dual(2))
-end
+@test checkindex(Bool, 1:3, dual(2))
 
 # wrap in individual modules to avoid name conflicts.
 module TestAutomaticDifferentiation
