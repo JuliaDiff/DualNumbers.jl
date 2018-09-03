@@ -1,6 +1,6 @@
 using DualNumbers, SpecialFunctions
 using Compat
-using Compat.Test
+using Test
 using Compat.LinearAlgebra
 import DualNumbers: value
 import NaNMath
