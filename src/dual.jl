@@ -143,10 +143,6 @@ end
 
 Base.show(io::IO, z::Dual) = dual_show(io, z, get(IOContext(io), :compact, false))
 
-@static if VERSION < v"0.7.0-DEV.4524"
-    Base.showcompact(io::IO, z::Dual) = dual_show(io, z, true)
-end
-
 function Base.read(s::IO, ::Type{Dual{T}}) where T<:ReComp
     x = read(s, T)
     y = read(s, T)
