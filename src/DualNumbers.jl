@@ -1,8 +1,6 @@
-__precompile__()
-
 module DualNumbers
 
-using Compat
+using Compat, SpecialFunctions
 import NaNMath
 import Calculus
 

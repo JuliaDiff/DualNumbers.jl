@@ -1,6 +1,6 @@
 using DualNumbers
 using Compat
-using Compat.Test
+using Test
 
 @test checkindex(Bool, 1:3, dual(2))
 

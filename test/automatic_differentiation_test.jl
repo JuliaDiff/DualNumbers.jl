@@ -1,6 +1,6 @@
-using DualNumbers
+using DualNumbers, SpecialFunctions
 using Compat
-using Compat.Test
+using Test
 using Compat.LinearAlgebra
 import DualNumbers: value
 import NaNMath
@@ -106,6 +106,10 @@ a = angle(z)
 
 @test angle(Dual(0.0+im,0.0+im)) == π/2
 
+
+# check bug in inv
+@test inv(dual(1.0+1.0im,1.0)) == 1/dual(1.0+1.0im,1.0) == dual(1.0+1.0im,1.0)^(-1)
+
 #
 # Tests limit definition. Let z = a + b ɛ, where a and b ∈ C.
 #
@@ -145,3 +149,16 @@ test(x, y) = x^2 + y
 
 @test epsilon(Dual(-2.0,1.0)^2.0) == -4
 @test epsilon(Dual(-2.0,1.0)^Dual(2.0,0.0)) == -4
+
+
+# test for flipsign
+flipsign(Dual(1.0,1.0),2.0) == Dual(1.0,1.0)
+flipsign(Dual(1.0,1.0),-2.0) == Dual(-1.0,-1.0)
+flipsign(Dual(1.0,1.0),Dual(1.0,1.0)) == Dual(1.0,1.0)
+flipsign(Dual(1.0,1.0),Dual(0.0,-1.0)) == Dual(-1.0,-1.0)
+flipsign(-1.0,Dual(1.0,1.0)) == -1.0
+
+
+# test SpecialFunctions
+@test erf(dual(1.0,1.0)) == dual(erf(1.0), 2exp(-1.0^2)/sqrt(π))
+@test gamma(dual(1.,1)) == dual(gamma(1.0),polygamma(0,1.0))
