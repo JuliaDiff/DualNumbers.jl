@@ -31,6 +31,9 @@ Base.widen(::Type{Dual{T}}) where {T} = Dual{widen(T)}
 value(z::Dual) = z.value
 epsilon(z::Dual) = z.epsilon
 
+value(x::Number) = x
+epsilon(x::Number) = zero(typeof(x))
+
 dual(x::ReComp, y::ReComp) = Dual(x, y)
 dual(x::ReComp) = Dual(x)
 dual(z::Dual) = z

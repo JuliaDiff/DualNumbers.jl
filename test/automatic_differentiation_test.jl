@@ -168,3 +168,6 @@ let x = exp10(Dual(2, 0.01))
     @test value(x) ≈ 100.0
     @test epsilon(x) ≈ log(10)
 end
+
+@test value(3) == 3
+@test epsilon(44.0) ≈ 0.0
