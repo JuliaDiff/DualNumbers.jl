@@ -162,3 +162,9 @@ flipsign(-1.0,Dual(1.0,1.0)) == -1.0
 # test SpecialFunctions
 @test erf(dual(1.0,1.0)) == dual(erf(1.0), 2exp(-1.0^2)/sqrt(π))
 @test gamma(dual(1.,1)) == dual(gamma(1.0),polygamma(0,1.0))
+
+
+let x = exp10(Dual(2, 0.01))
+    @test value(x) ≈ 100.0
+    @test epsilon(x) ≈ log(10)
+end

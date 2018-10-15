@@ -313,6 +313,8 @@ end
 Base.exp(z::Dual) = (expval = exp(value(z)); Dual(expval, epsilon(z)*expval))
 Base.cis(z::Dual) = (cisval = cis(value(z)); Dual(cisval, im*epsilon(z)*cisval))
 
+Base.exp10(x::Dual) = (y = exp10(value(x)); Dual(y, y * log(10) * epsilon(x)))
+
 ## TODO: should be generated in Calculus
 Base.sinpi(z::Dual) = Dual(sinpi(value(z)),epsilon(z)*cospi(value(z))*π)
 Base.cospi(z::Dual) = Dual(cospi(value(z)),-epsilon(z)*sinpi(value(z))*π)
