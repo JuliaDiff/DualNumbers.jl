@@ -31,6 +31,9 @@ Base.widen(::Type{Dual{T}}) where {T} = Dual{widen(T)}
 value(z::Dual) = z.value
 epsilon(z::Dual) = z.epsilon
 
+value(x::Number) = x
+epsilon(x::Number) = zero(typeof(x))
+
 dual(x::ReComp, y::ReComp) = Dual(x, y)
 dual(x::ReComp) = Dual(x)
 dual(z::Dual) = z
@@ -264,7 +267,7 @@ Base.:^(z::Dual, n::Number) = Dual(value(z)^n, epsilon(z)*n*value(z)^(n-1))
 NaNMath.pow(z::Dual, n::Number) = Dual(NaNMath.pow(value(z),n), epsilon(z)*n*NaNMath.pow(value(z),n-1))
 NaNMath.pow(z::Number, w::Dual) = Dual(NaNMath.pow(z,value(w)), epsilon(w)*NaNMath.pow(z,value(w))*log(z))
 
-inv(z::Dual) = dual(inv(value(z)),-epsilon(z)/value(z)^2)
+Base.inv(z::Dual) = dual(inv(value(z)),-epsilon(z)/value(z)^2)
 
 # force use of NaNMath functions in derivative calculations
 function to_nanmath(x::Expr)
@@ -312,6 +315,8 @@ end
 # only need to compute exp/cis once
 Base.exp(z::Dual) = (expval = exp(value(z)); Dual(expval, epsilon(z)*expval))
 Base.cis(z::Dual) = (cisval = cis(value(z)); Dual(cisval, im*epsilon(z)*cisval))
+
+Base.exp10(x::Dual) = (y = exp10(value(x)); Dual(y, y * log(10) * epsilon(x)))
 
 ## TODO: should be generated in Calculus
 Base.sinpi(z::Dual) = Dual(sinpi(value(z)),epsilon(z)*cospi(value(z))*π)
