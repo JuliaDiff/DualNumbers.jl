@@ -1,5 +1,4 @@
 using DualNumbers
-using Compat
 using Test
 
 @test checkindex(Bool, 1:3, dual(2))

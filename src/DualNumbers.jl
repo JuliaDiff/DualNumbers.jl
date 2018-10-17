@@ -1,6 +1,6 @@
 module DualNumbers
 
-using Compat, SpecialFunctions
+using SpecialFunctions
 import NaNMath
 import Calculus
 
