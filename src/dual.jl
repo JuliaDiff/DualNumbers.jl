@@ -6,6 +6,7 @@ struct Dual{T<:ReComp} <: Number
 end
 Dual(x::S, y::T) where {S<:ReComp,T<:ReComp} = Dual(promote(x,y)...)
 Dual(x::ReComp) = Dual(x, zero(x))
+Dual{T}(x::ReComp) where T<:ReComp = Dual{T}(T(x), zero(T))
 
 const ɛ = Dual(false, true)
 const imɛ = Dual(Complex(false, false), Complex(false, true))

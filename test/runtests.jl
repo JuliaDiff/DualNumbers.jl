@@ -1,6 +1,8 @@
 using DualNumbers
 using Test
 
+@test isempty(detect_ambiguities(DualNumbers, Base, Core))
+
 @test checkindex(Bool, 1:3, dual(2))
 
 # wrap in individual modules to avoid name conflicts.

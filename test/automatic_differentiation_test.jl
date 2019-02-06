@@ -25,6 +25,7 @@ y = abs(-x)
 @test epsilon(y) ≈ 1.0
 
 @test isequal(1.0,Dual(1.0))
+@test Dual{Float32}(3) === Dual{Float32}(3.0f0, 0.0f0)
 
 y = 1/x
 @test value(y) ≈ 1/2
