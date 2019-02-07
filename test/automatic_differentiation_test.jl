@@ -20,6 +20,8 @@ y = sin(x)+exp(x)
 @test epsilon(y) ≈ cos(2)+exp(2)
 
 @test x > 1
+@test dual(1) < dual(2.0)
+@test dual(1.0) < dual(2.0)
 y = abs(-x)
 @test value(y) ≈ 2.0
 @test epsilon(y) ≈ 1.0
