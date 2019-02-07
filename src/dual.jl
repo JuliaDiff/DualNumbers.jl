@@ -171,7 +171,7 @@ Base.isequal(z::Dual, w::Dual) = isequal(value(z),value(w)) && isequal(epsilon(z
 Base.isequal(z::Dual, x::Number) = isequal(value(z), x) && isequal(epsilon(z), zero(x))
 Base.isequal(x::Number, z::Dual) = isequal(z, x)
 
-Base.isless(z::Dual{T},w::Dual{T}) where {T<:Real} = value(z) < value(w)
+Base.isless(z::Dual{<:Real},w::Dual{<:Real}) = value(z) < value(w)
 Base.isless(z::Real,w::Dual{<:Real}) = z < value(w)
 Base.isless(z::Dual{<:Real},w::Real) = value(z) < w
 
