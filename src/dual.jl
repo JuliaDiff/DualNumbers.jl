@@ -191,7 +191,7 @@ Base.round(::Type{T}, z::Dual) where {T<:Real} = round(T, value(z))
 
 Base.zero(::Type{Dual{T}}) where {T} = Dual(zero(T), zero(T))
 Base.zero(x::Dual{T}) where {T} = zero(typeof(x))
-Base.iszero(z::Dual{T}) where {T} = iszero(value(z)))
+Base.iszero(z::Dual{T}) where {T} = iszero(value(z))
 
 Base.one(::Type{Dual{T}}) where {T} = Dual(one(T), zero(T))
 Base.one(x::Dual{T}) where {T} = one(typeof(x))
