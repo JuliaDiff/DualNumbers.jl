@@ -190,15 +190,19 @@ Base.trunc(::Type{T}, z::Dual) where {T<:Real} = trunc(T, value(z))
 Base.round(::Type{T}, z::Dual) where {T<:Real} = round(T, value(z))
 
 Base.zero(::Type{Dual{T}}) where {T} = Dual(zero(T), zero(T))
-Base.zero(x::Dual{T}) where {T} = zero(T)
-Base.iszero(z::Dual{T}) where {T} = iszero(value(z)) & iszero(epsilon(z))
+Base.zero(x::Dual{T}) where {T} = zero(typeof(x))
+Base.iszero(z::Dual{T}) where {T} = iszero(value(z)))
 
 Base.one(::Type{Dual{T}}) where {T} = Dual(one(T), zero(T))
-Base.one(x::Dual{T}) where {T} = one(T)
-Base.isone(z::Dual{T}) where {T} = isone(value(z)) & iszero(epsilon(z))
+Base.one(x::Dual{T}) where {T} = one(typeof(x))
+Base.isone(z::Dual{T}) where {T} = isone(value(z))
 
 Base.rand(r::Random.AbstractRNG, ::Random.SamplerType{Dual{T}}) where {T} = Dual{T}(rand(r, T), rand(r, T))
 Base.randn(r::Random.AbstractRNG, ::Type{Dual{T}}) where {T} = Dual{T}(randn(r, T), randn(r, T))
+
+Base.rtoldefault(::Type{Dual{T}}) where {T} = Base.rtoldefault(T)
+Base.copysign(x::Dual, y::Dual) = Dual(copysign(value(x), value(y)),
+                                       copysign(epsilon(x), epsilon(y)))
 
 for op in (:real, :imag, :conj, :float, :complex)
     @eval Base.$op(z::Dual) = Dual($op(value(z)), $op(epsilon(z)))
