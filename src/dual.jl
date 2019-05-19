@@ -197,6 +197,9 @@ Base.one(::Type{Dual{T}}) where {T} = Dual(one(T), zero(T))
 Base.one(x::Dual{T}) where {T} = one(T)
 Base.isone(z::Dual{T}) where {T} = isone(value(z)) & iszero(epsilon(z))
 
+Base.rand(r::Random.AbstractRNG, ::Random.SamplerType{Dual{T}}) where {T} = Dual{T}(rand(r, T), rand(r, T))
+Base.randn(r::Random.AbstractRNG, ::Type{Dual{T}}) where {T} = Dual{T}(randn(r, T), randn(r, T))
+
 for op in (:real, :imag, :conj, :float, :complex)
     @eval Base.$op(z::Dual) = Dual($op(value(z)), $op(epsilon(z)))
 end

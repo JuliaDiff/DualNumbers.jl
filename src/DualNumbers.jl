@@ -3,6 +3,7 @@ module DualNumbers
 using SpecialFunctions
 import NaNMath
 import Calculus
+import Random
 
 include("dual.jl")
 
