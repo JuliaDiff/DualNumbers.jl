@@ -194,7 +194,7 @@ Base.zero(x::Dual{T}) where {T} = zero(typeof(x))
 Base.iszero(z::Dual{T}) where {T} = iszero(value(z))
 
 Base.one(::Type{Dual{T}}) where {T} = Dual(one(T), zero(T))
-Base.one(x::Dual{T}) where {T} = one(typeof(x))
+Base.one(::Dual{T}) where {T} = one(Dual{T})
 Base.isone(z::Dual{T}) where {T} = isone(value(z))
 
 Base.rand(r::Random.AbstractRNG, ::Random.SamplerType{Dual{T}}) where {T} = Dual{T}(rand(r, T), rand(r, T))
