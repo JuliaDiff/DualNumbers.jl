@@ -3,7 +3,6 @@ using Test
 using LinearAlgebra
 import DualNumbers: value
 import NaNMath
-import Base: one, isone, zero, iszero
 
 x = Dual(2, 1)
 y = x^3
