@@ -63,6 +63,26 @@ x = Dual(1.0,1.0)
 @test convert(Dual{Float64}, Inf) == convert(Float64, Inf)
 @test isnan(convert(Dual{Float64}, NaN))
 
+w = 1.0
+x = Dual(1.0, 0.0)
+y = Dual(1.0, 1.0)
+z = Dual(1.0, NaN)
+@test w !== x
+@test w == x
+@test isequal(w, x)
+@test x !== y
+@test x != y
+@test isfinite(x)
+@test !isfinite(z)
+@test isnan(z)
+@test !isinf(z)
+@test z != z
+@test isequal(z, z)
+x = Dual(0.0, 0.0)
+@test x !== -x
+@test x == -x
+@test !isequal(x, -x)
+
 @test convert(Dual{Float64},Dual(1,2)) == Dual(1.0,2.0)
 @test convert(Float64, Dual(10.0,0.0)) == 10.0
 @test convert(Dual{Int}, Dual(10.0,0.0)) == Dual(10,0)

@@ -42,9 +42,11 @@ dual(z::Dual) = z
 const realpart = value
 const dualpart = epsilon
 
-Base.isnan(z::Dual) = isnan(value(z))
-Base.isinf(z::Dual) = isinf(value(z))
-Base.isfinite(z::Dual) = isfinite(value(z))
+Base.isfinite(z::Dual) = isfinite(value(z)) & isfinite(epsilon(z))
+Base.isnan(z::Dual) = isnan(value(z)) | isnan(epsilon(z))
+Base.isinf(z::Dual) = isinf(value(z)) | isinf(epsilon(z))
+Base.iszero(z::Dual) = iszero(value(z)) & iszero(epsilon(z))
+Base.isone(z::Dual) = isone(value(z)) & iszero(epsilon(z))
 isdual(x::Dual) = true
 isdual(x::Number) = false
 Base.eps(z::Dual) = eps(value(z))
@@ -163,11 +165,11 @@ end
 Base.convert(::Type{Dual}, z::Dual) = z
 Base.convert(::Type{Dual}, x::Number) = Dual(x)
 
-Base.:(==)(z::Dual, w::Dual) = value(z) == value(w)
-Base.:(==)(z::Dual, x::Number) = value(z) == x
-Base.:(==)(x::Number, z::Dual) = value(z) == x
+Base.:(==)(z::Dual, w::Dual) = (value(z) == value(w)) & (epsilon(z) == epsilon(w))
+Base.:(==)(z::Dual, x::Number) = iszero(epsilon(z)) && value(z) == x
+Base.:(==)(x::Number, z::Dual) = z == x
 
-Base.isequal(z::Dual, w::Dual) = isequal(value(z),value(w)) && isequal(epsilon(z), epsilon(w))
+Base.isequal(z::Dual, w::Dual) = isequal(value(z), value(w)) && isequal(epsilon(z), epsilon(w))
 Base.isequal(z::Dual, x::Number) = isequal(value(z), x) && isequal(epsilon(z), zero(x))
 Base.isequal(x::Number, z::Dual) = isequal(z, x)
 
