@@ -99,6 +99,7 @@ x = Dual(1.2,1.0)
 
 x = 2dual(sqrt(floatmax(Float64)), sqrt(floatmax(Float64)))
 @test x/x == 1.0
+@test inv(x)*x == 1.0
 
 # test Dual{Complex}
 
