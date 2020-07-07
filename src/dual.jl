@@ -242,8 +242,8 @@ Base.:*(z::Dual, w::Dual) = Dual(value(z)*value(w), epsilon(z)*value(w)+value(z)
 Base.:*(x::Number, z::Dual) = Dual(x*value(z), x*epsilon(z))
 Base.:*(z::Dual, x::Number) = Dual(x*value(z), x*epsilon(z))
 
-Base.:/(z::Dual, w::Dual) = Dual(value(z)/value(w), (epsilon(z)*value(w)-value(z)*epsilon(w))/(value(w)*value(w)))
-Base.:/(z::Number, w::Dual) = Dual(z/value(w), -z*epsilon(w)/value(w)^2)
+Base.:/(z::Dual, w::Dual) = Dual(value(z)/value(w), (epsilon(z)-value(z)/value(w)*epsilon(w))/value(w))
+Base.:/(z::Number, w::Dual) = Dual(z/value(w), -z*epsilon(w)/value(w)/value(w))
 Base.:/(z::Dual, x::Number) = Dual(value(z)/x, epsilon(z)/x)
 
 for f in [:(Base.:^), :(NaNMath.pow)]
@@ -270,7 +270,7 @@ Base.:^(z::Dual, n::Number) = Dual(value(z)^n, epsilon(z)*n*value(z)^(n-1))
 NaNMath.pow(z::Dual, n::Number) = Dual(NaNMath.pow(value(z),n), epsilon(z)*n*NaNMath.pow(value(z),n-1))
 NaNMath.pow(z::Number, w::Dual) = Dual(NaNMath.pow(z,value(w)), epsilon(w)*NaNMath.pow(z,value(w))*log(z))
 
-Base.inv(z::Dual) = dual(inv(value(z)),-epsilon(z)/value(z)^2)
+Base.inv(z::Dual) = dual(inv(value(z)),-epsilon(z)/value(z)/value(z))
 
 # force use of NaNMath functions in derivative calculations
 function to_nanmath(x::Expr)

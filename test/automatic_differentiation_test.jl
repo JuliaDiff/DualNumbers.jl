@@ -97,6 +97,9 @@ x = Dual(1.2,1.0)
 @test trunc(Int, x) === 1
 @test round(Int, x) === 1
 
+x = 2dual(sqrt(floatmax(Float64)), sqrt(floatmax(Float64)))
+@test x/x == 1.0
+
 # test Dual{Complex}
 
 z = Dual(1.0+1.0im,1.0)
