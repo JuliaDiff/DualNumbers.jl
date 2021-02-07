@@ -1,6 +1,4 @@
 [![Build Status](https://travis-ci.org/JuliaDiff/DualNumbers.jl.svg?branch=master)](https://travis-ci.org/JuliaDiff/DualNumbers.jl)
-[![DualNumbers](http://pkg.julialang.org/badges/DualNumbers_0.6.svg)](http://pkg.julialang.org/?pkg=DualNumbers)
-[![DualNumbers](http://pkg.julialang.org/badges/DualNumbers_0.7.svg)](http://pkg.julialang.org/?pkg=DualNumbers)
 
 ### Scope of DualNumbers.jl
 
