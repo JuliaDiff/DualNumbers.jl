@@ -127,6 +127,7 @@ z = Dual(1.0+1.0im,cis(π/4))
 z = Dual(1.0+1.0im,cis(π/2))
 @test abs(z) ≡ sqrt(2) + 1/sqrt(2)*ɛ
 
+
 # tests vectorized methods
 const zv = dual.(collect(1.0:10.0), ones(10))
 
@@ -173,3 +174,12 @@ end
 
 @test value(3) == 3
 @test epsilon(44.0) ≈ 0.0
+
+@test one(Dual{Float64}) == Dual(1,0)
+@test isone(Dual(1,0))
+@test isone(one(rand(Dual{Float64})))
+
+@test zero(Dual{Float64}) == Dual(0,0)
+@test iszero(Dual(0,0))
+
+@test copysign(Dual(-1,-2), Dual(2,3)) == Dual(1,2)
