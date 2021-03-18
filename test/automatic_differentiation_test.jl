@@ -15,6 +15,9 @@ y = x^3.0
 @test value(y) ≈ 2.0^3
 @test epsilon(y) ≈ 3.0*2^2
 
+y = Dual(2.0, 1)^UInt64(0)
+@test !isnan(epsilon(y))
+
 y = sin(x)+exp(x)
 @test value(y) ≈ sin(2)+exp(2)
 @test epsilon(y) ≈ cos(2)+exp(2)

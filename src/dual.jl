@@ -261,6 +261,7 @@ end
 Base.mod(z::Dual, n::Number) = Dual(mod(value(z), n), epsilon(z))
 
 # these two definitions are needed to fix ambiguity warnings
+Base.:^(z::Dual, n::Unsigned) = z^Signed(n)
 Base.:^(z::Dual, n::Integer) = Dual(value(z)^n, epsilon(z)*n*value(z)^(n-1))
 Base.:^(z::Dual, n::Rational) = Dual(value(z)^n, epsilon(z)*n*value(z)^(n-1))
 
