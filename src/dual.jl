@@ -260,12 +260,14 @@ end
 
 Base.mod(z::Dual, n::Number) = Dual(mod(value(z), n), epsilon(z))
 
-# these two definitions are needed to fix ambiguity warnings
-Base.:^(z::Dual, n::Unsigned) = z^Signed(n)
-Base.:^(z::Dual, n::Integer) = Dual(value(z)^n, epsilon(z)*n*value(z)^(n-1))
-Base.:^(z::Dual, n::Rational) = Dual(value(z)^n, epsilon(z)*n*value(z)^(n-1))
+# introduce a boolean !iszero(n) for hard zero behaviour to combat NaNs
+pow(z::Dual, n) = Dual(value(z)^n, !iszero(n) * (epsilon(z) * n * value(z)^(n - 1)))
+# these last two definitions are needed to fix ambiguity warnings
+for T ∈ (:Integer, :Rational, :Number)
+    @eval Base.:^(z::Dual, n::$T) = pow(z, n)
+end
 
-Base.:^(z::Dual, n::Number) = Dual(value(z)^n, epsilon(z)*n*value(z)^(n-1))
+
 NaNMath.pow(z::Dual, n::Number) = Dual(NaNMath.pow(value(z),n), epsilon(z)*n*NaNMath.pow(value(z),n-1))
 NaNMath.pow(z::Number, w::Dual) = Dual(NaNMath.pow(z,value(w)), epsilon(w)*NaNMath.pow(z,value(w))*log(z))
 

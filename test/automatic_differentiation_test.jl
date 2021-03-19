@@ -15,6 +15,29 @@ y = x^3.0
 @test value(y) ≈ 2.0^3
 @test epsilon(y) ≈ 3.0*2^2
 
+# taking care with divides by zero where there shouldn't be any on paper
+for (y, n) ∈ Iterators.product((float(x), Dual(0.0, 1)), (0, 0.0))
+  z = y^n
+  @test value(z) == 1
+  @test !isnan(epsilon(z))
+  @test epsilon(z) == 0
+end
+
+# acting on floats works as expected
+for (y, n) ∈ ((float(x), Dual(0.0, 1)), -1:1)
+  @test float(x)^n == float(x)^float(n)
+end
+
+# power_by_squaring error for integers
+powwrap(z, n) = Dual(z, 1)^n # needs to be wrapped to make n a literal
+@test_throws DomainError powwrap(123, 0)
+@test_throws DomainError powwrap(2, -1)
+@test_throws DomainError powwrap(123, -1)
+# this one doesn't error!
+@test powwrap(1, -1) == Dual(1, -1)
+
+@test !isnan(epsilon(Dual(0, 1)^1))
+
 y = Dual(2.0, 1)^UInt64(0)
 @test !isnan(epsilon(y))
 
