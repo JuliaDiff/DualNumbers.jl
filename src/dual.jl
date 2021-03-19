@@ -267,7 +267,6 @@ for T ∈ (:Integer, :Rational, :Number)
     @eval Base.:^(z::Dual, n::$T) = pow(z, n)
 end
 
-
 NaNMath.pow(z::Dual, n::Number) = Dual(NaNMath.pow(value(z),n), epsilon(z)*n*NaNMath.pow(value(z),n-1))
 NaNMath.pow(z::Number, w::Dual) = Dual(NaNMath.pow(z,value(w)), epsilon(w)*NaNMath.pow(z,value(w))*log(z))
 
