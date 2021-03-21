@@ -25,21 +25,39 @@ end
 
 # acting on floats works as expected
 for (y, n) ∈ ((float(x), Dual(0.0, 1)), -1:1)
-  @test float(x)^n == float(x)^float(n)
+  @test float(y)^n == float(y)^float(n)
 end
 
-# power_by_squaring error for integers
-powwrap(z, n) = Dual(z, 1)^n # needs to be wrapped to make n a literal
-@test_throws DomainError powwrap(123, 0)
-@test_throws DomainError powwrap(2, -1)
-@test_throws DomainError powwrap(123, -1)
-# this one doesn't error!
-@test powwrap(1, -1) == Dual(1, -1)
-
 @test !isnan(epsilon(Dual(0, 1)^1))
+@test Dual(0, 1)^1 == Dual(0, 1)
+
+# power_by_squaring error for integers
+# needs to be wrapped to make n a literal
+powwrap(z, n, epspart=0) = Dual(z, epspart)^n
+@test_throws DomainError powwrap(0, -1)
+@test_throws DomainError powwrap(2, -1)
+@test_throws DomainError powwrap(123, -1) # etc
+# these ones don't DomainError
+@test powwrap(0, 0, 0) == Dual(1, 0) # special case is handled
+@test powwrap(0, 0, 1) == Dual(1, 0) # special case is handled
+@test powwrap(1, 0) == Dual(1, 1)
+@test powwrap(123, 0) == Dual(1, 1)
+for i ∈ -3:3
+  @test powwrap(1, i) == Dual(1, i)
+end
+
+# this no longer throws 1/0 DomainError
+@test powwrap(0, Dual(0, 1)) == Dual(1, 0)
+# this never did DomainError because it starts off with a float
+@test 0.0^Dual(0, 1) == Dual(1.0, NaN)
+# and Dual^Dual uses a log and is now type stable
+# because the log promotes ints to floats for all values
+@test typeof(value(powwrap(0, Dual(0, 1)))) == Float64
+@test Dual(0, 1)^Dual(0, 1) == Dual(1, 0)
 
 y = Dual(2.0, 1)^UInt64(0)
 @test !isnan(epsilon(y))
+@test epsilon(y) == 0
 
 y = sin(x)+exp(x)
 @test value(y) ≈ sin(2)+exp(2)

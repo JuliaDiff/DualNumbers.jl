@@ -245,14 +245,16 @@ Base.:/(z::Number, w::Dual) = Dual(z/value(w), -z*epsilon(w)/value(w)^2)
 Base.:/(z::Dual, x::Number) = Dual(value(z)/x, epsilon(z)/x)
 
 for f in [:(Base.:^), :(NaNMath.pow)]
-    @eval function ($f)(z::Dual, w::Dual)
-        if epsilon(w) == 0.0
-            return $f(z, value(w))
-        end
+    @eval function ($f)(z::Dual{T1}, w::Dual{T2}) where {T1, T2}
+        T = promote_type(T1, T2) # for type stability in ? : statements
         val = $f(value(z), value(w))
 
-        du = epsilon(z) * value(w) * $f(value(z), value(w) - 1) +
-             epsilon(w) * $f(value(z), value(w)) * log(value(z))
+        ezvw = epsilon(z) * value(w) # for using in ? : statement
+        du1 = iszero(ezvw) ? zero(T) : ezvw * $f(value(z), value(w) - 1)
+        ew = epsilon(w) # for using in ? : statement
+        # the float is for type stability because log promotes to floats
+        du2 = iszero(ew) ? zero(float(T)) : ew * val * log(value(z))
+        du = du1 + du2
 
         Dual(val, du)
     end
@@ -261,15 +263,21 @@ end
 Base.mod(z::Dual, n::Number) = Dual(mod(value(z), n), epsilon(z))
 
 # introduce a boolean !iszero(n) for hard zero behaviour to combat NaNs
-pow(z::Dual, n) = Dual(value(z)^n, !iszero(n) * (epsilon(z) * n * value(z)^(n - 1)))
-# these last two definitions are needed to fix ambiguity warnings
-for T ∈ (:Integer, :Rational, :Number)
-    @eval Base.:^(z::Dual, n::$T) = pow(z, n)
+function pow(z::Dual, n::AbstractFloat)
+    return Dual(value(z)^n, !iszero(n) * (epsilon(z) * n * value(z)^(n - 1)))
+end
+function pow(z::Dual{T}, n::Integer) where T
+    iszero(n) && return Dual(one(T), zero(T)) # avoid DomainError Int^(negative Int)
+    return Dual(value(z)^n, epsilon(z) * n * value(z)^(n - 1))
+end
+# these first two definitions are needed to fix ambiguity warnings
+for T1 ∈ (:Integer, :Rational, :Number)
+    @eval Base.:^(z::Dual{T}, n::$T1) where T = pow(z, n)
 end
 
 
-NaNMath.pow(z::Dual, n::Number) = Dual(NaNMath.pow(value(z),n), epsilon(z)*n*NaNMath.pow(value(z),n-1))
-NaNMath.pow(z::Number, w::Dual) = Dual(NaNMath.pow(z,value(w)), epsilon(w)*NaNMath.pow(z,value(w))*log(z))
+NaNMath.pow(z::Dual{T}, n::Number) where T = Dual(NaNMath.pow(value(z),n), epsilon(z)*n*NaNMath.pow(value(z),n-1))
+NaNMath.pow(z::Number, w::Dual{T}) where T = Dual(NaNMath.pow(z,value(w)), epsilon(w)*NaNMath.pow(z,value(w))*log(z))
 
 Base.inv(z::Dual) = dual(inv(value(z)),-epsilon(z)/value(z)^2)
 
