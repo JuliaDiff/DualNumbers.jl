@@ -268,6 +268,7 @@ function pow(z::Dual, n::AbstractFloat)
 end
 function pow(z::Dual{T}, n::Integer) where T
     iszero(n) && return Dual(one(T), zero(T)) # avoid DomainError Int^(negative Int)
+    isone(z) && return Dual(one(T), epsilon(z) * n)
     return Dual(value(z)^n, epsilon(z) * n * value(z)^(n - 1))
 end
 # these first two definitions are needed to fix ambiguity warnings

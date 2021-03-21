@@ -40,6 +40,9 @@ powwrap(z, n, epspart=0) = Dual(z, epspart)^n
 # these ones don't DomainError
 @test powwrap(0, 0, 0) == Dual(1, 0) # special case is handled
 @test powwrap(0, 0, 1) == Dual(1, 0) # special case is handled
+@test powwrap(1, -1) == powwrap(1.0, -1) # special case is handled
+@test powwrap(1, -2) == powwrap(1.0, -2) # special case is handled
+@test powwrap(1, -123) == powwrap(1.0, -123) # special case is handled
 @test powwrap(1, 0) == Dual(1, 1)
 @test powwrap(123, 0) == Dual(1, 1)
 for i ∈ -3:3
