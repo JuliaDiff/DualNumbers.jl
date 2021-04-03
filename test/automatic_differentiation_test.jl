@@ -15,8 +15,52 @@ y = x^3.0
 @test value(y) ≈ 2.0^3
 @test epsilon(y) ≈ 3.0*2^2
 
+# taking care with divides by zero where there shouldn't be any on paper
+for (y, n) ∈ Iterators.product((float(x), Dual(0.0, 1)), (0, 0.0))
+  z = y^n
+  @test value(z) == 1
+  @test !isnan(epsilon(z))
+  @test epsilon(z) == 0
+end
+
+# acting on floats works as expected
+for (y, n) ∈ ((float(x), Dual(0.0, 1)), -1:1)
+  @test float(y)^n == float(y)^float(n)
+end
+
+@test !isnan(epsilon(Dual(0, 1)^1))
+@test Dual(0, 1)^1 == Dual(0, 1)
+
+# power_by_squaring error for integers
+# needs to be wrapped to make n a literal
+powwrap(z, n, epspart=0) = Dual(z, epspart)^n
+@test_throws DomainError powwrap(0, -1)
+@test_throws DomainError powwrap(2, -1)
+@test_throws DomainError powwrap(123, -1) # etc
+# these ones don't DomainError
+@test powwrap(0, 0, 0) == Dual(1, 0) # special case is handled
+@test powwrap(0, 0, 1) == Dual(1, 0) # special case is handled
+@test powwrap(1, -1) == powwrap(1.0, -1) # special case is handled
+@test powwrap(1, -2) == powwrap(1.0, -2) # special case is handled
+@test powwrap(1, -123) == powwrap(1.0, -123) # special case is handled
+@test powwrap(1, 0) == Dual(1, 1)
+@test powwrap(123, 0) == Dual(1, 1)
+for i ∈ -3:3
+  @test powwrap(1, i) == Dual(1, i)
+end
+
+# this no longer throws 1/0 DomainError
+@test powwrap(0, Dual(0, 1)) == Dual(1, 0)
+# this never did DomainError because it starts off with a float
+@test 0.0^Dual(0, 1) == Dual(1.0, NaN)
+# and Dual^Dual uses a log and is now type stable
+# because the log promotes ints to floats for all values
+@test typeof(value(powwrap(0, Dual(0, 1)))) == Float64
+@test Dual(0, 1)^Dual(0, 1) == Dual(1, 0)
+
 y = Dual(2.0, 1)^UInt64(0)
 @test !isnan(epsilon(y))
+@test epsilon(y) == 0
 
 y = sin(x)+exp(x)
 @test value(y) ≈ sin(2)+exp(2)
