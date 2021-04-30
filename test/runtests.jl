@@ -9,3 +9,9 @@ using Test
 module TestAutomaticDifferentiation
 include("automatic_differentiation_test.jl")
 end
+
+@testset "complex" begin
+    for D in [Dual32, Dual64, Dual128]
+        @test typeof(complex(zero(D))) == complex(D)
+    end
+end
