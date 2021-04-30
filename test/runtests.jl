@@ -11,7 +11,8 @@ include("automatic_differentiation_test.jl")
 end
 
 @testset "complex" begin
-    for D in [Dual32, Dual64, Dual128]
+    for T in [Float16, Float32, Float64, BigFloat, Int8, Int16, Int32, Int64, Int128, BigInt, Bool]
+        D = Dual{T}
         @test typeof(complex(zero(D))) == complex(D)
     end
 end
