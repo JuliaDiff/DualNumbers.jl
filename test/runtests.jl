@@ -14,5 +14,7 @@ end
     for T in [Float16, Float32, Float64, BigFloat, Int8, Int16, Int32, Int64, Int128, BigInt, Bool]
         D = Dual{T}
         @test typeof(complex(zero(D))) == complex(D)
+        D = Dual{Complex{T}}
+        @test typeof(complex(zero(D))) == complex(D)
     end
 end
