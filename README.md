@@ -1,4 +1,6 @@
-[![Build Status](https://travis-ci.org/JuliaDiff/DualNumbers.jl.svg?branch=master)](https://travis-ci.org/JuliaDiff/DualNumbers.jl)
+[![Build Status](https://github.com/JuliaDiff/DualNumbers.jl/workflows/CI/badge.svg)](https://github.com/JuliaDiff/DualNumbers.jl/actions)
+[![codecov](https://codecov.io/gh/JuliaDiff/DualNumbers.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaDiff/DualNumbers.jl)
+
 
 ### Scope of DualNumbers.jl
 
