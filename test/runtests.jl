@@ -1,7 +1,7 @@
 using DualNumbers
 using Test
 
-@test_broken isempty(detect_ambiguities(DualNumbers, Base, Core))
+@test_skip isempty(detect_ambiguities(DualNumbers, Base, Core))
 
 @test checkindex(Bool, 1:3, dual(2))
 
