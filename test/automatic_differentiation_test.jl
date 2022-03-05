@@ -200,6 +200,13 @@ test(x, y) = x^2 + y
 @test epsilon(Dual(-2.0,1.0)^Dual(2.0,0.0)) == -4
 
 
+# test complex and dual mixing
+@test complex(dual(1, 2), dual(3, 4)) == dual(complex(1, 3), complex(2, 4))
+@test complex(1, dual(2, 3)) == dual(complex(1, 2), complex(0, 3))
+@test complex(dual(1, 2), 3) == dual(complex(1, 3), complex(2, 0))
+@test complex(dual(1, 2)) == dual(complex(1, 0), complex(2, 0))
+
+
 # test for flipsign
 flipsign(Dual(1.0,1.0),2.0) == Dual(1.0,1.0)
 flipsign(Dual(1.0,1.0),-2.0) == Dual(-1.0,-1.0)
