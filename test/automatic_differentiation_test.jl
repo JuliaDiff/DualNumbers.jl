@@ -101,6 +101,11 @@ end
     @test value(atan(y, x)) ≈ atan(value(y), value(x))
     @test value(atan(y / x)) ≈ atan(value(y) / value(x))
     @test epsilon(atan(y, x)) ≈ epsilon(atan(y / x))
+
+    @test value(atan(y, value(x))) ≈ atan(value(y), value(x))
+    @test epsilon(atan(y, value(x))) ≈ epsilon(atan(y, dual(value(x))))
+    @test value(atan(value(y), x)) ≈ atan(value(y), value(x))
+    @test epsilon(atan(value(y), x)) ≈ epsilon(atan(dual(value(y)), x))
 end
 
 @test epsilon(squareroot(Dual(10000.0,1.0))) ≈ 0.005
