@@ -345,7 +345,7 @@ function Base.atan(y::Dual, x::Real)
 end
 function Base.atan(y::Real, x::Dual)
     u = value(x)^2 + y^2
-    return Dual(atan(y, value(x)), (y/u) * epsilon(x))
+    return Dual(atan(y, value(x)), (y/u) * -epsilon(x))
 end
 
 Base.checkindex(::Type{Bool}, inds::AbstractUnitRange, i::Dual) = checkindex(Bool, inds, value(i))
