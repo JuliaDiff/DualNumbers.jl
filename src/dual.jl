@@ -44,6 +44,7 @@ function Base.complex(x::Dual, y::Dual)
 end
 Base.complex(x::Real, y::Dual) = complex(dual(x), y)
 Base.complex(x::Dual, y::Real) = complex(x, dual(y))
+Base.complex(::Type{Dual{T}}) where {T} = Dual{complex(T)}
 
 const realpart = value
 const dualpart = epsilon
