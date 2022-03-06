@@ -39,6 +39,13 @@ dual(x::ReComp, y::ReComp) = Dual(x, y)
 dual(x::ReComp) = Dual(x)
 dual(z::Dual) = z
 
+function Base.complex(x::Dual, y::Dual)
+    dual(complex(value(x), value(y)), complex(epsilon(x), epsilon(y)))
+end
+Base.complex(x::Real, y::Dual) = complex(dual(x), y)
+Base.complex(x::Dual, y::Real) = complex(x, dual(y))
+Base.complex(::Type{Dual{T}}) where {T} = Dual{complex(T)}
+
 const realpart = value
 const dualpart = epsilon
 
