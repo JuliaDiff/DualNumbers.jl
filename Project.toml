@@ -1,6 +1,6 @@
 name = "DualNumbers"
 uuid = "fa6b7ba4-c1ee-5f82-b5fc-ecf0adba8f74"
-version = "0.6.7"
+version = "0.6.8"
 
 [deps]
 Calculus = "49dc2e85-a5d0-5ad3-a950-438e2897f1b9"

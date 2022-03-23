@@ -342,4 +342,17 @@ Base.exp10(x::Dual) = (y = exp10(value(x)); Dual(y, y * log(10) * epsilon(x)))
 Base.sinpi(z::Dual) = Dual(sinpi(value(z)),epsilon(z)*cospi(value(z))*π)
 Base.cospi(z::Dual) = Dual(cospi(value(z)),-epsilon(z)*sinpi(value(z))*π)
 
+function Base.atan(y::Dual, x::Dual)
+    u = value(x)^2 + value(y)^2
+    return dual(atan(value(y), value(x)), (value(x)/u) * epsilon(y) - (value(y)/u) * epsilon(x))
+end
+function Base.atan(y::Dual, x::Real)
+    u = x^2 + value(y)^2
+    return Dual(atan(value(y), x), (x/u) * epsilon(y))
+end
+function Base.atan(y::Real, x::Dual)
+    u = value(x)^2 + y^2
+    return Dual(atan(y, value(x)), (y/u) * -epsilon(x))
+end
+
 Base.checkindex(::Type{Bool}, inds::AbstractUnitRange, i::Dual) = checkindex(Bool, inds, value(i))
