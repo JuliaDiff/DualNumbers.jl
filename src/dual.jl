@@ -21,7 +21,7 @@ const DualComplex64  = Dual{ComplexF16}
 Base.convert(::Type{Dual{T}}, z::Dual{T}) where {T<:ReComp} = z
 Base.convert(::Type{Dual{T}}, z::Dual) where {T<:ReComp} = Dual{T}(convert(T, value(z)), convert(T, epsilon(z)))
 Base.convert(::Type{Dual{T}}, x::Number) where {T<:ReComp} = Dual{T}(convert(T, x), convert(T, 0))
-Base.convert(::Type{T}, z::Dual) where {T<:ReComp} = (epsilon(z)==0 ? convert(T, value(z)) : throw(InexactError()))
+Base.convert(::Type{T}, z::Dual) where {T<:ReComp} = (epsilon(z)==0 ? convert(T, value(z)) : throw(InexactError(:convert, T, z)))
 
 Base.promote_rule(::Type{Dual{T}}, ::Type{Dual{S}}) where {T<:ReComp,S<:ReComp} = Dual{promote_type(T, S)}
 Base.promote_rule(::Type{Dual{T}}, ::Type{S}) where {T<:ReComp,S<:ReComp} = Dual{promote_type(T, S)}
