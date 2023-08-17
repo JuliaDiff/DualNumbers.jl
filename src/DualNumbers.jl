@@ -1,6 +1,5 @@
 module DualNumbers
 
-using SpecialFunctions
 import NaNMath
 import Calculus
 
@@ -25,5 +24,9 @@ export
     abs2dual,
     ɛ,
     imɛ
+
+if !isdefined(Base, :get_extension)
+    include("../ext/DualNumbersSpecialFunctions.jl")
+end
 
 end # module
