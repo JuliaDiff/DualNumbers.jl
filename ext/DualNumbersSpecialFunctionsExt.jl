@@ -15,14 +15,14 @@ for (funsym, expr) in Calculus.symbolic_derivatives_1arg()
         end
     end
     # extend corresponding NaNMath methods
-	if funsym in (:lgamma,)
-	    funsym = Expr(:.,:NaNMath,Base.Meta.quot(funsym))
-	    @eval function $(funsym)(z::Dual)
-	        x = value(z)
-	        xp = epsilon(z)
-	        Dual($(funsym)(x),xp*$(to_nanmath(expr)))
-	    end
-	end
+    if funsym in (:lgamma,)
+        funsym = Expr(:.,:NaNMath,Base.Meta.quot(funsym))
+        @eval function $(funsym)(z::Dual)
+            x = value(z)
+            xp = epsilon(z)
+            Dual($(funsym)(x),xp*$(to_nanmath(expr)))
+        end
+    end
 end
 
 
