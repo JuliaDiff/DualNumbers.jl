@@ -186,6 +186,7 @@ Base.hash(z::Dual) = (x = hash(value(z)); epsilon(z)==0 ? x : bitmix(x,hash(epsi
 
 Base.float(z::Union{Dual{T}, Dual{Complex{T}}}) where {T<:AbstractFloat} = z
 Base.complex(z::Dual{<:Complex}) = z
+Base.complex(::Type{Dual{R}}) where {R} = Dual{complex(R)}
 
 Base.floor(z::Dual) = floor(value(z))
 Base.ceil(z::Dual)  = ceil(value(z))
