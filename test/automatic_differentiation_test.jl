@@ -241,3 +241,5 @@ end
 
 @test value(3) == 3
 @test epsilon(44.0) ≈ 0.0
+
+@test_throws InexactError convert(Float64, Dual(1,1))
