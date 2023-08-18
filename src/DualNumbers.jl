@@ -26,7 +26,7 @@ export
     imɛ
 
 if !isdefined(Base, :get_extension)
-    include("../ext/DualNumbersSpecialFunctions.jl")
+    include("../ext/DualNumbersSpecialFunctionsExt.jl")
 end
 
 end # module
