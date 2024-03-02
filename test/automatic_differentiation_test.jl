@@ -62,6 +62,14 @@ y = Dual(2.0, 1)^UInt64(0)
 @test !isnan(epsilon(y))
 @test epsilon(y) == 0
 
+# test dual^complex
+a, b = rand(), rand(ComplexF64)
+@test realpart(Dual(a, 1)^b) ≈ a^b
+@test dualpart(Dual(a, 1)^b) ≈ b * a^(b - 1)
+a, b = rand(ComplexF64), rand(ComplexF64)
+@test realpart(Dual(a, 1)^b) ≈ a^b
+@test dualpart(Dual(a, 1)^b) ≈ b * a^(b - 1)
+
 y = sin(x)+exp(x)
 @test value(y) ≈ sin(2)+exp(2)
 @test epsilon(y) ≈ cos(2)+exp(2)

@@ -283,6 +283,7 @@ for T1 ∈ (:Integer, :Rational, :Number)
     @eval Base.:^(z::Dual{T}, n::$T1) where T = pow(z, n)
 end
 
+Base.:^(x::Dual, p::Complex) = exp((log(abs2(x))/2 + im * angle(x)) * p)
 
 NaNMath.pow(z::Dual{T}, n::Number) where T = Dual(NaNMath.pow(value(z),n), epsilon(z)*n*NaNMath.pow(value(z),n-1))
 NaNMath.pow(z::Number, w::Dual{T}) where T = Dual(NaNMath.pow(z,value(w)), epsilon(w)*NaNMath.pow(z,value(w))*log(z))
