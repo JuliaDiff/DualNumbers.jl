@@ -182,6 +182,8 @@ Base.isless(z::Dual{<:Real},w::Dual{<:Real}) = value(z) < value(w)
 Base.isless(z::Real,w::Dual{<:Real}) = z < value(w)
 Base.isless(z::Dual{<:Real},w::Real) = value(z) < w
 
+Base.isinteger(z::Dual) = isinteger(value(z)) # Ignore epsilon part to be consistent with ==
+
 Base.hash(z::Dual) = (x = hash(value(z)); epsilon(z)==0 ? x : bitmix(x,hash(epsilon(z))))
 
 Base.float(z::Union{Dual{T}, Dual{Complex{T}}}) where {T<:AbstractFloat} = z

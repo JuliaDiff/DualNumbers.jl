@@ -243,3 +243,6 @@ end
 @test epsilon(44.0) ≈ 0.0
 
 @test_throws InexactError convert(Float64, Dual(1,1))
+
+@test isinteger(Dual(2, 0.01))
+@test !isinteger(Dual(2.1, 0.01))
