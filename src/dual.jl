@@ -305,31 +305,25 @@ to_nanmath(x) = x
 
 
 
-for (funsym, exp) in Calculus.symbolic_derivatives_1arg()
+for (funsym, expr) in Calculus.symbolic_derivatives_1arg()
     funsym == :exp && continue
     funsym == :abs2 && continue
     funsym == :inv && continue
-    if isdefined(SpecialFunctions, funsym)
-        @eval function SpecialFunctions.$(funsym)(z::Dual)
-            x = value(z)
-            xp = epsilon(z)
-            Dual($(funsym)(x),xp*$exp)
-        end
-    elseif isdefined(Base, funsym)
+    if isdefined(Base, funsym)
         @eval function Base.$(funsym)(z::Dual)
             x = value(z)
             xp = epsilon(z)
-            Dual($(funsym)(x),xp*$exp)
+            Dual($(funsym)(x),xp*$expr)
         end
     end
     # extend corresponding NaNMath methods
     if funsym in (:sin, :cos, :tan, :asin, :acos, :acosh, :atanh, :log, :log2, :log10,
-          :lgamma, :log1p)
+          :log1p)
         funsym = Expr(:.,:NaNMath,Base.Meta.quot(funsym))
         @eval function $(funsym)(z::Dual)
             x = value(z)
             xp = epsilon(z)
-            Dual($(funsym)(x),xp*$(to_nanmath(exp)))
+            Dual($(funsym)(x),xp*$(to_nanmath(expr)))
         end
     end
 end
