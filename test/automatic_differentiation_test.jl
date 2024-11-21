@@ -43,20 +43,26 @@ powwrap(z, n, epspart=0) = Dual(z, epspart)^n
 @test powwrap(1, -1) == powwrap(1.0, -1) # special case is handled
 @test powwrap(1, -2) == powwrap(1.0, -2) # special case is handled
 @test powwrap(1, -123) == powwrap(1.0, -123) # special case is handled
-@test powwrap(1, 0) == Dual(1, 1)
-@test powwrap(123, 0) == Dual(1, 1)
+@test powwrap(1, 0) == Dual(1, 0)
+@test powwrap(1, 0) != Dual(1, 1)
+@test powwrap(123, 0) == Dual(1, 0)
+@test powwrap(123, 0) != Dual(1, 1)
 for i ∈ -3:3
-  @test powwrap(1, i) == Dual(1, i)
+  @test powwrap(1, i) == Dual(1, 0)
+  @test i == 0 || (powwrap(1, i) != Dual(1, i))
 end
 
 # this no longer throws 1/0 DomainError
-@test powwrap(0, Dual(0, 1)) == Dual(1, 0)
+@test powwrap(0, Dual(0, 1)) == Dual(1, -Inf)
+@test powwrap(0, Dual(0, 1)) != Dual(1, 0)
 # this never did DomainError because it starts off with a float
-@test 0.0^Dual(0, 1) == Dual(1.0, NaN)
+@test 0.0^Dual(0, 1) == Dual(1.0, -Inf)
+@test 0.0^Dual(0, 1) != Dual(1.0, NaN)
 # and Dual^Dual uses a log and is now type stable
 # because the log promotes ints to floats for all values
 @test typeof(value(powwrap(0, Dual(0, 1)))) == Float64
-@test Dual(0, 1)^Dual(0, 1) == Dual(1, 0)
+@test Dual(0, 1)^Dual(0, 1) == Dual(1, -Inf)
+@test Dual(0, 1)^Dual(0, 1) != Dual(1, 0)
 
 y = Dual(2.0, 1)^UInt64(0)
 @test !isnan(epsilon(y))
